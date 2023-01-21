@@ -27,22 +27,19 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
-test = { shell = """
-pytest
-""" }
+test = "pytest"
 coverage-xml = "pytest --cov=playground playground --doctest-modules --cov-report=xml"
-format = { shell = """
-isort playground &&
-black playground &&
-pyupgrade --py37-plus playground/*.py
-""" }
-check = { shell = """
-isort --check-only --diff playground &&
-black --check --diff playground &&
-flake8 playground &&
-mypy playground 
-""" }
-
+format = [
+    { cmd = "isort playground"},
+    { cmd = "black playground"},
+    { cmd = "pyupgrade --py37-plus playground/*.py"},
+]
+check = [
+    { cmd = "isort --check-only --diff playground"},
+    { cmd = "black --check --diff playground"},
+    { cmd = "flake8 playground"},
+    { cmd = "mypy playground"},
+]
 [tool.mypy]
 warn_return_any = true
 warn_unused_configs = true
