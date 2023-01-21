@@ -1,0 +1,44 @@
+[tool.black]
+line-length = 79
+
+[tool.poetry]
+name = "pypi-playground"
+version = "0.1.0"
+description = ""
+authors = ["kitsuyui <kitsuyui@kitsuyui.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+pytest = "*"
+isort = "*"
+pyupgrade = "*"
+pytest-cov = "*"
+flake8 = "*"
+mypy = "*"
+poethepoet = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+test = { shell = """
+pytest
+""" }
+coverage-xml = "pytest --cov=playground playground --doctest-modules --cov-report=xml"
+format = {shell = """
+isort playground &&
+black playground &&
+pyupgrade --py37-plus playground/*.py
+"""}
+check = {shell = """
+isort --check-only --diff playground &&
+black --check --diff playground &&
+flake8 playground &&
+mypy playground 
+"""}
