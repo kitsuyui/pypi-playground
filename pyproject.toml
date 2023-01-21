@@ -2,12 +2,17 @@
 line-length = 79
 
 [tool.poetry]
-name = "pypi-playground"
-version = "0.1.0"
+# I use poetry as just a package manager.
+# So, I only write the settings that poetry needs.
+# The actual package metadata is written in setup.cfg.
+# I use pypa/build for packaging.
+name = "kitsuyui-pypi-playground"
+version = "0.0.0"
 description = ""
-authors = ["kitsuyui <kitsuyui@kitsuyui.com>"]
-readme = "README.md"
-packages = []
+authors = []
+packages = [
+    { include = "playground" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -21,24 +26,42 @@ pytest-cov = "*"
 flake8 = "*"
 mypy = "*"
 poethepoet = "*"
+setuptools-scm = "*"
+build = "*"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "setuptools", "setuptools_scm"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "playground/_version.py"
 
 [tool.poe.tasks]
-test = { shell = """
-pytest
-""" }
-coverage-xml = "pytest --cov=playground playground --doctest-modules --cov-report=xml"
-format = {shell = """
-isort playground &&
-black playground &&
-pyupgrade --py37-plus playground/*.py
-"""}
-check = {shell = """
-isort --check-only --diff playground &&
-black --check --diff playground &&
-flake8 playground &&
-mypy playground 
-"""}
+test = "pytest"
+coverage-xml = "pytest --cov=playground --doctest-modules --cov-report=xml"
+format = [
+    { cmd = "isort playground"},
+    { cmd = "black playground"},
+    { cmd = "pyupgrade --py37-plus playground/*.py"},
+]
+check = [
+    { cmd = "isort --check-only --diff playground"},
+    { cmd = "black --check --diff playground"},
+    { cmd = "flake8 playground"},
+    { cmd = "mypy playground"},
+]
+build = [
+    { cmd = "python -m build"}
+]
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = false
+
+[tool.mypy-tests."*"]
+disallow_untyped_defs = false
+warn_return_any = false
+ignore_missing_imports = true

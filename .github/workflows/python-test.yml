@@ -1,4 +1,4 @@
-name: Lint and Test Python
+name: Test
 on: [push]
 
 jobs:
@@ -23,7 +23,6 @@ jobs:
         uses: abatilo/actions-poetry@v2
 
       - name: Cache
-        id: cache-python
         uses: actions/cache@v3
         with:
           path: ~/.cache/pypoetry/virtualenvs
@@ -33,8 +32,7 @@ jobs:
             ${{ runner.os }}-build-${{ matrix.python }}-
             ${{ runner.os }}-
 
-      - if: ${{ steps.cache-python.outputs.cache-hit != 'true' }}
-        name: Install dependencies
+      - name: Install dependencies
         run: poetry install
 
       - name: Lint

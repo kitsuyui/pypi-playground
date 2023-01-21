@@ -1,4 +1,4 @@
-name: Upload PyPI package release
+name: Packaging
 
 on:
   push:
@@ -21,13 +21,24 @@ jobs:
       - name: Set up poetry
         uses: abatilo/actions-poetry@v2
 
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-build-${{ matrix.python }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ matrix.python }}-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-build-${{ matrix.python }}-
+            ${{ runner.os }}-
+
       - run: poetry install
 
       - name: Build
-        run: poetry build
+        # I use poetry just as a package manager, so this is not `poetry build`
+        run: poetry run poe build
 
       - name: Publish distribution to Test PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         if: github.event_name == 'release' && github.event.release.prerelease
         with:
           user: __token__
@@ -36,7 +47,7 @@ jobs:
 
       - name: Publish distribution to PyPI
         if: github.event_name == 'release' && !github.event.release.prerelease
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
