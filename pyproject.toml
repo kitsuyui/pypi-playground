@@ -30,7 +30,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
 test = "pytest"
-coverage-xml = "pytest --cov=playground playground --doctest-modules --cov-report=xml"
+coverage-xml = "pytest --cov=playground --doctest-modules --cov-report=xml"
 format = [
     { cmd = "isort playground"},
     { cmd = "black playground"},
