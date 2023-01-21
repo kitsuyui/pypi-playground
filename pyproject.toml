@@ -2,12 +2,14 @@
 line-length = 79
 
 [tool.poetry]
-name = "pypi-playground"
+name = "kitsuyui-pypi-playground"
 version = "0.1.0"
 description = ""
 authors = ["kitsuyui <kitsuyui@kitsuyui.com>"]
 readme = "README.md"
-packages = []
+packages = [
+    { include = "playground" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
