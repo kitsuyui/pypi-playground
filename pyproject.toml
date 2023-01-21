@@ -31,14 +31,25 @@ test = { shell = """
 pytest
 """ }
 coverage-xml = "pytest --cov=playground playground --doctest-modules --cov-report=xml"
-format = {shell = """
+format = { shell = """
 isort playground &&
 black playground &&
 pyupgrade --py37-plus playground/*.py
-"""}
-check = {shell = """
+""" }
+check = { shell = """
 isort --check-only --diff playground &&
 black --check --diff playground &&
 flake8 playground &&
 mypy playground 
-"""}
+""" }
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = false
+
+[tool.mypy-tests."*"]
+disallow_untyped_defs = false
+warn_return_any = false
+ignore_missing_imports = true
