@@ -52,4 +52,4 @@ poetry poe check
 
 # LICENSE
 
-MIT License
+BSD 3-Clause License
