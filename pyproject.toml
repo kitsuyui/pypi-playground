@@ -2,11 +2,14 @@
 line-length = 79
 
 [tool.poetry]
+# I use poetry as just a package manager.
+# So, I only write the settings that poetry needs.
+# The actual package metadata is written in setup.cfg.
+# I use pypa/build for packaging.
 name = "kitsuyui-pypi-playground"
-version = "0.1.0"
+version = "0.0.0"
 description = ""
-authors = ["kitsuyui <kitsuyui@kitsuyui.com>"]
-readme = "README.md"
+authors = []
 packages = [
     { include = "playground" },
 ]
@@ -23,10 +26,17 @@ pytest-cov = "*"
 flake8 = "*"
 mypy = "*"
 poethepoet = "*"
+setuptools-scm = "*"
+build = "*"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "setuptools", "setuptools_scm"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "playground/_version.py"
 
 [tool.poe.tasks]
 test = "pytest"
@@ -41,6 +51,9 @@ check = [
     { cmd = "black --check --diff playground"},
     { cmd = "flake8 playground"},
     { cmd = "mypy playground"},
+]
+build = [
+    { cmd = "python -m build"}
 ]
 [tool.mypy]
 warn_return_any = true
