@@ -2,6 +2,10 @@ name: happy-commit
 on:
   - pull_request
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   happy:
     runs-on: ubuntu-latest
