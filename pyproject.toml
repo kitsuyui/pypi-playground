@@ -15,7 +15,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
@@ -44,7 +44,7 @@ coverage-xml = "pytest --cov=playground --doctest-modules --cov-report=xml"
 format = [
     { cmd = "isort playground"},
     { cmd = "black playground"},
-    { cmd = "pyupgrade --py37-plus playground/*.py"},
+    { cmd = "pyupgrade --py38-plus playground/*.py"},
 ]
 check = [
     { cmd = "isort --check-only --diff playground"},
