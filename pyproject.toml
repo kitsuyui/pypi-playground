@@ -11,6 +11,8 @@ packages = [{ include = "playground" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+fonttools = "^4.52.4"
+ufolib2 = "^0.16.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
