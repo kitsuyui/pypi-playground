@@ -1,13 +1,18 @@
 [tool.poetry]
-# I use poetry as just a package manager.
-# So, I only write the settings that poetry needs.
-# The actual package metadata is written in setup.cfg.
-# I use pypa/build for packaging.
+
 name = "kitsuyui.hello"
 version = "0.0.0"
-description = ""
-authors = []
+description = "A playground for publishing packages to PyPI"
+readme = "README.md"
+authors = ["Yui KITSU <kitsuyui+github@kitsuyui.com>"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: BSD License"
+]
+license = "BSD-3-Clause"
+repository = "https://github.com/kitsuyui/pypi-playground"
 packages = [{ include = "src/hello" }]
+include = ["pyproject.toml", "README.md", "py.typed", "*.pyi"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
