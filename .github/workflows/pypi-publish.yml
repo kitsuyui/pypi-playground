@@ -13,6 +13,10 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targets: ['kitsuyui-animal', 'kitsuyui-hello']
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +52,7 @@ jobs:
           user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
+          packages-dir: packages/${{ matrix.targets }}/dist
 
       - name: Publish distribution to PyPI
         if: github.event_name == 'release' && !github.event.release.prerelease
@@ -55,3 +60,4 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: packages/${{ matrix.targets }}/dist
