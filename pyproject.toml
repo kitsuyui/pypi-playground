@@ -7,7 +7,6 @@ name = "kitsuyui-pypi-playground"
 version = "0.0.0"
 description = ""
 authors = []
-packages = [{ include = "playground" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -20,19 +19,33 @@ poethepoet = "*"
 setuptools-scm = "*"
 build = "*"
 
+"kitsuyui.hello" = { path = "packages/kitsuyui-hello" , develop = true }
+"kitsuyui.animal" = { path = "packages/kitsuyui-animal" , develop = true }
+
 [build-system]
-requires = ["setuptools", "setuptools_scm"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
-write_to = "playground/_version.py"
-
 [tool.poe.tasks]
-test = "pytest"
-coverage-xml = "pytest --cov=playground --doctest-modules --cov-report=xml"
-format = "ruff format playground"
-check = "ruff check playground"
-build = [{ cmd = "python -m build" }]
+test = [
+    {cmd = "poetry run poe test", cwd = "packages/kitsuyui-hello"},
+    {cmd = "poetry run poe test", cwd = "packages/kitsuyui-animal"},
+]
+update-monorepo = [
+    {cmd = "poetry update", cwd = "packages/kitsuyui-hello"},
+    {cmd = "poetry update", cwd = "packages/kitsuyui-animal"},
+]
+coverage-xml = [
+    {cmd = "poetry run poe coverage-xml", cwd = "packages/kitsuyui-hello"},
+    {cmd = "poetry run poe coverage-xml", cwd = "packages/kitsuyui-animal"},
+]
+
+format = "ruff format packages"
+check = "ruff check packages"
+build = [
+    { cmd = "python -m build", cwd = "packages/kitsuyui-hello" },
+    { cmd = "python -m build", cwd = "packages/kitsuyui-animal" },
+]
 
 [tool.mypy]
 warn_return_any = true

@@ -1,0 +1,41 @@
+[tool.poetry]
+# I use poetry as just a package manager.
+# So, I only write the settings that poetry needs.
+# The actual package metadata is written in setup.cfg.
+# I use pypa/build for packaging.
+name = "kitsuyui.animal"
+version = "0.0.0"
+description = ""
+authors = []
+packages = [{ include = "src/animal" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+pytest-cov = "*"
+poethepoet = "*"
+setuptools-scm = "*"
+build = "*"
+
+[project]
+name = "kitsuyui.animal"
+dynamic = ["version"]
+
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools_scm]
+version_file = "./src/animal/_version.py"
+root = "../../"
+relative_to = "__file__"
+
+[tool.poe.tasks]
+test = "pytest"
+coverage-xml = "pytest --cov=src --doctest-modules --cov-report=xml"
+build = [{ cmd = "python -m build" }]
