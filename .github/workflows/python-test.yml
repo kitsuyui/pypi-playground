@@ -40,7 +40,11 @@ jobs:
             ${{ runner.os }}-
 
       - name: Install dependencies
-        run: poetry install
+        run: |
+          poetry install
+          poetry run poe install-all
+          poetry run poe build-all
+          poetry install
 
       - name: Lint
         run: poetry run poe check
@@ -55,10 +59,10 @@ jobs:
           fi
 
       - name: Test
-        run: poetry run poe test
+        run: poetry run poe test-all
 
       - name: Coverage
-        run: poetry run poe coverage-xml
+        run: poetry run poe coverage-all
 
       - name: Upload coverage report to Codecov
         if: matrix.python == '3.12'

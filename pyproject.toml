@@ -24,30 +24,40 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.poe.tasks]
-test = [
-    {cmd = "poetry run poe test", cwd = "packages/kitsuyui-hello"},
-    {cmd = "poetry run poe test", cwd = "packages/kitsuyui-animal"},
-    {cmd = "poetry run pytest tests"},
+
+format = "ruff format packages"
+check = "ruff check packages"
+test-all = [
+    {cmd = "pytest tests", cwd = "packages/kitsuyui-hello"},
+    {cmd = "pytest tests", cwd = "packages/kitsuyui-animal"},
+    {cmd = "pytest tests"},
 ]
-update-monorepo = [
+lock-all = [
+    {cmd = "poetry lock", cwd = "packages/kitsuyui-hello"},
+    {cmd = "poetry lock", cwd = "packages/kitsuyui-animal"},
+    {cmd = "poetry lock"},
+]
+install-all = [
+    {cmd = "poetry install", cwd = "packages/kitsuyui-hello"},
+    {cmd = "poetry install", cwd = "packages/kitsuyui-animal"},
+    {cmd = "poetry install"},
+]
+update-all = [
     {cmd = "poetry update", cwd = "packages/kitsuyui-hello"},
     {cmd = "poetry update", cwd = "packages/kitsuyui-animal"},
     {cmd = "poetry update"},
 ]
-coverage-xml = [
-    {cmd = "poetry run poe coverage-xml", cwd = "packages/kitsuyui-hello"},
-    {cmd = "poetry run poe coverage-xml", cwd = "packages/kitsuyui-animal"},
+coverage-all = [
+    {cmd = "pytest --cov=src --doctest-modules --cov-report=xml tests", cwd = "packages/kitsuyui-hello"},
+    {cmd = "pytest --cov=src --doctest-modules --cov-report=xml tests", cwd = "packages/kitsuyui-animal"},
 ]
-
-format = "ruff format packages"
-check = "ruff check packages"
-build = [
+build-all = [
     { cmd = "python -m build", cwd = "packages/kitsuyui-hello" },
     { cmd = "python -m build", cwd = "packages/kitsuyui-animal" },
 ]
-
-check-publish = [
-    { cmd = "poetry run twine check packages/**/dist/**/*" },
+check-publish-all = [
+    { cmd = "twine check dist/*", cwd = "packages/kitsuyui-hello" },
+    { cmd = "twine check dist/*", cwd = "packages/kitsuyui-animal" },
 ]
 
 [tool.mypy]
