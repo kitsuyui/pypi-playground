@@ -10,7 +10,7 @@ classifiers = [
 ]
 license = "BSD-3-Clause"
 repository = "https://github.com/kitsuyui/pypi-playground"
-packages = [{ include = "src/animal" }]
+packages = [{ include = "src/kitsuyui/animal" }]
 include = ["pyproject.toml", "README.md", "py.typed", "*.pyi"]
 
 [tool.poetry.dependencies]
@@ -36,7 +36,7 @@ build-backend = "setuptools.build_meta"
 package-dir = { "" = "src" }
 
 [tool.setuptools_scm]
-version_file = "./src/animal/_version.py"
+version_file = "./src/kitsuyui/animal/_version.py"
 root = "../../"
 relative_to = "__file__"
 
