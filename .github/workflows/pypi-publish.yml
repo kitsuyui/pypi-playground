@@ -43,7 +43,9 @@ jobs:
 
       - name: Build
         # I use poetry just as a package manager, so this is not `poetry build`
-        run: poetry run poe build
+        run: |
+          poetry run poe build
+          poetry run poe check-publish
 
       - name: Publish distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

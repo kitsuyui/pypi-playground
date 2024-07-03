@@ -3,7 +3,6 @@
 name = "kitsuyui.hello"
 version = "0.0.0"
 description = "A playground for publishing packages to PyPI"
-readme = "README.md"
 authors = ["Yui KITSU <kitsuyui+github@kitsuyui.com>"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -27,6 +26,7 @@ build = "*"
 [project]
 name = "kitsuyui.hello"
 dynamic = ["version"]
+readme = { file = "README.md", content-type = "text/markdown" }
 
 [build-system]
 requires = ["setuptools", "setuptools_scm"]
