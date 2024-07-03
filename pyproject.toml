@@ -33,6 +33,7 @@ build-backend = "setuptools.build_meta"
 test = [
     {cmd = "poetry run poe test", cwd = "packages/kitsuyui-hello"},
     {cmd = "poetry run poe test", cwd = "packages/kitsuyui-animal"},
+    {cmd = "poetry run pytest tests"},
 ]
 update-monorepo = [
     {cmd = "poetry update", cwd = "packages/kitsuyui-hello"},
