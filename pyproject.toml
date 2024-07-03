@@ -18,6 +18,9 @@ pytest-cov = "*"
 poethepoet = "*"
 setuptools-scm = "*"
 build = "*"
+twine = "*"
+# https://github.com/python-poetry/poetry/issues/9293
+docutils = "!=0.21.post1"
 
 "kitsuyui.hello" = { path = "packages/kitsuyui-hello" , develop = true }
 "kitsuyui.animal" = { path = "packages/kitsuyui-animal" , develop = true }
@@ -34,6 +37,7 @@ test = [
 update-monorepo = [
     {cmd = "poetry update", cwd = "packages/kitsuyui-hello"},
     {cmd = "poetry update", cwd = "packages/kitsuyui-animal"},
+    {cmd = "poetry update"},
 ]
 coverage-xml = [
     {cmd = "poetry run poe coverage-xml", cwd = "packages/kitsuyui-hello"},
@@ -45,6 +49,10 @@ check = "ruff check packages"
 build = [
     { cmd = "python -m build", cwd = "packages/kitsuyui-hello" },
     { cmd = "python -m build", cwd = "packages/kitsuyui-animal" },
+]
+
+check-publish = [
+    { cmd = "poetry run twine check packages/**/dist/**/*" },
 ]
 
 [tool.mypy]
