@@ -1,12 +1,5 @@
 [tool.poetry]
-# I use poetry as just a package manager.
-# So, I only write the settings that poetry needs.
-# The actual package metadata is written in setup.cfg.
-# I use pypa/build for packaging.
-name = "kitsuyui-pypi-playground"
-version = "0.0.0"
-description = ""
-authors = []
+name = "pypi-playground-root"
 package-mode = false
 
 [tool.poetry.dependencies]
