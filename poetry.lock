@@ -526,32 +526,6 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
 [[package]]
-name = "kitsuyui-animal"
-version = "0.0.0"
-description = "A playground for publishing packages to PyPI"
-optional = false
-python-versions = "^3.8"
-files = []
-develop = true
-
-[package.source]
-type = "directory"
-url = "packages/kitsuyui-animal"
-
-[[package]]
-name = "kitsuyui-hello"
-version = "0.0.0"
-description = "A playground for publishing packages to PyPI"
-optional = false
-python-versions = "^3.8"
-files = []
-develop = true
-
-[package.source]
-type = "directory"
-url = "packages/kitsuyui-hello"
-
-[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -1023,4 +997,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "5008ce1fc4508ef78e98b1207798c5812eaf8253848952eeeaf2865e4b9bdad9"
+content-hash = "df0d961363db25c1eacde0da92ae745b413ad1872409aa81e4f05b8e1e6785eb"

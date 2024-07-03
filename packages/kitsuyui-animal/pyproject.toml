@@ -6,7 +6,7 @@ description = "A playground for publishing packages to PyPI"
 authors = ["Yui KITSU <kitsuyui+github@kitsuyui.com>"]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: BSD License"
+    "License :: OSI Approved :: BSD License",
 ]
 license = "BSD-3-Clause"
 repository = "https://github.com/kitsuyui/pypi-playground"
@@ -17,11 +17,6 @@ include = ["pyproject.toml", "README.md", "py.typed", "*.pyi"]
 python = "^3.8"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "*"
-pytest-cov = "*"
-poethepoet = "*"
-setuptools-scm = "*"
-build = "*"
 
 [project]
 name = "kitsuyui.animal"
@@ -40,7 +35,5 @@ version_file = "./src/kitsuyui/animal/_version.py"
 root = "../../"
 relative_to = "__file__"
 
-[tool.poe.tasks]
-test = "pytest"
-coverage-xml = "pytest --cov=src --doctest-modules --cov-report=xml"
-build = [{ cmd = "python -m build" }]
+[tool.pytest.ini_options]
+pythonpath = ["src"]
