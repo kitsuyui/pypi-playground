@@ -13,11 +13,38 @@ In this playground, I experiment with them, and configure them to speed up CI an
 - https://github.com/kitsuyui/python-template-analysis
 - https://github.com/kitsuyui/python-timevec
 
+# monorepo
+
+This repository is a monorepo that contains multiple packages.
+Packaging namespace packages are used to manage them.
+https://packaging.python.org/en/latest/guides/packaging-namespace-packages/
+
+Each package is managed in the `src` directory. And the packages are published to PyPI separately.
+
 # Usage
 
 ## Install dependencies
 
 Install dependencies with [poetry](https://python-poetry.org/).
+If you don't have poetry installed, you can install it with the following command.
+
+### Install poetry
+
+#### Install pipx
+
+If you don't have pipx installed, you can install it with the following command in macOS
+
+```bash
+brew install pipx
+```
+
+#### Install poetry
+
+```bash
+pipx install poetry
+```
+
+## Install dependencies
 
 ```bash
 poetry install
@@ -35,20 +62,11 @@ poetry poe test
 poetry poe format
 ```
 
-- [isort](https://pycqa.github.io/isort/) for import sorting
-- [black](https://black.readthedocs.io/en/stable/) for formatting
-- [pyupgrade](https://github.com/asottile/pyupgrade) for upgrading syntax to the latest version of Python
-
 ## Lint
 
 ```bash
 poetry poe check
 ```
-
-- [mypy](https://mypy.readthedocs.io/en/stable/) for static type checking
-- [flake8](https://flake8.pycqa.org/en/latest/) for linting
-- [black](https://black.readthedocs.io/en/stable/) for formatting check
-- [isort](https://pycqa.github.io/isort/) for import sorting check
 
 # LICENSE
 
