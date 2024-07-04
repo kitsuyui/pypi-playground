@@ -45,7 +45,7 @@ jobs:
           poetry run poe install-all
 
       - name: Lint
-        run: poetry run poe check
+        run: poetry run poe check-all
 
       - name: Check Python version
         run: |

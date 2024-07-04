@@ -15,6 +15,7 @@ build = "*"
 twine = "*"
 # https://github.com/python-poetry/poetry/issues/9293
 docutils = "!=0.21.post1"
+mypy = "*"
 
 [build-system]
 requires = ["setuptools"]
@@ -22,8 +23,16 @@ build-backend = "setuptools.build_meta"
 
 [tool.poe.tasks]
 
-format = "ruff format packages"
-check = "ruff check packages"
+format-all = [
+    {cmd = "ruff format", cwd = "packages/kitsuyui-hello"},
+    {cmd = "ruff format", cwd = "packages/kitsuyui-animal"},
+]
+check-all = [
+    {cmd = "ruff check", cwd = "packages/kitsuyui-hello"},
+    {cmd = "ruff check", cwd = "packages/kitsuyui-animal"},
+    {cmd = "mypy --namespace-packages --explicit-package-bases src tests", cwd = "packages/kitsuyui-hello"},
+    {cmd = "mypy --namespace-packages --explicit-package-bases src tests", cwd = "packages/kitsuyui-animal"},
+]
 test-all = [
     {cmd = "pytest tests", cwd = "packages/kitsuyui-hello"},
     {cmd = "pytest tests", cwd = "packages/kitsuyui-animal"},
@@ -61,15 +70,8 @@ clean-all = [
 ]
 
 [tool.mypy]
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
+strict = true
 ignore_missing_imports = false
-
-[tool.mypy-tests."*"]
-disallow_untyped_defs = false
-warn_return_any = false
-ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 79
