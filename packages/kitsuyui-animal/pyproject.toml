@@ -37,3 +37,6 @@ relative_to = "__file__"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.mypy]
+mypy_path = "src"
