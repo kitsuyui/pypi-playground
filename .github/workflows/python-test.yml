@@ -44,6 +44,9 @@ jobs:
           poetry install
           poetry run poe install-all
 
+      - name: Build
+        run: poetry run poe build-all
+
       - name: Lint
         run: poetry run poe check-all
 
