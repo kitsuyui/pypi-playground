@@ -13,8 +13,6 @@ poethepoet = "*"
 setuptools-scm = "*"
 build = "*"
 twine = "*"
-# https://github.com/python-poetry/poetry/issues/9293
-docutils = "!=0.21.post1"
 mypy = "*"
 
 [build-system]
