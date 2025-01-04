@@ -63,8 +63,8 @@ check-publish-all = [
     { cmd = "twine check dist/*", cwd = "packages/kitsuyui-animal" },
 ]
 clean-all = [
-    { cmd = "rm -rf dist", cwd = "packages/kitsuyui-hello" },
-    { cmd = "rm -rf dist", cwd = "packages/kitsuyui-animal" },
+    { cmd = "rm -rf dist src/*.egg-info", cwd = "packages/kitsuyui-hello" },
+    { cmd = "rm -rf dist src/*.egg-info", cwd = "packages/kitsuyui-animal" },
 ]
 
 [tool.mypy]
