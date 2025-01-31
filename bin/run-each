@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+subcommand=$1
+shift
+
+find packages \
+-type d \
+-not -path 'packages/dev-shared' \
+-maxdepth 1 \
+-mindepth 1 \
+-exec sh -c 'cd {} && uv run poe '"$subcommand" \;

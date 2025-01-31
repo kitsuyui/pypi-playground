@@ -1,0 +1,27 @@
+[tool.poe.tasks]
+
+format = [
+    {cmd = "ruff format src tests"},
+]
+syntax_check = [
+    {cmd = "ruff check src tests"},
+]
+type_check = [
+    {cmd = "env MYPYPATH=src mypy --namespace-packages --explicit-package-bases src tests"},
+]
+check = [
+    {cmd = "poe syntax_check"},
+    {cmd = "poe type_check"},
+]
+test = [
+    {cmd = "pytest tests"},
+]
+sync = [
+    {cmd = "uv sync"},
+]
+coverage = [
+    {cmd = "pytest --cov=src --doctest-modules --cov-report=xml tests"},
+]
+build = [
+    { cmd = "uv build"},
+]

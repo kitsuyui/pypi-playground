@@ -1,27 +1,19 @@
-[tool.poetry]
-
+[project]
 name = "kitsuyui.hello"
-version = "0.0.0"
+dynamic = ["version"]
 description = "A playground for publishing packages to PyPI"
-authors = ["Yui KITSU <kitsuyui+github@kitsuyui.com>"]
+requires-python = ">=3.8"
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+    {name = "Yui KITSU", email = "kitsuyui+github@kitsuyui.com"}
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
 ]
-license = "BSD-3-Clause"
-repository = "https://github.com/kitsuyui/pypi-playground"
-packages = [{ include = "src/kitsuyui/hello" }]
-include = ["pyproject.toml", "README.md", "py.typed", "*.pyi"]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-
-[tool.poetry.group.dev.dependencies]
-
-[project]
-name = "kitsuyui.hello"
-dynamic = ["version"]
-readme = { file = "README.md", content-type = "text/markdown" }
+[project.urls]
+Homepage = "https://github.com/kitsuyui/pypi-playground"
 
 [build-system]
 requires = ["setuptools", "setuptools_scm"]
@@ -29,13 +21,23 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+package-data = { "*" = ["README.md, LICENSE", "py.typed", "*.pyi"] }
+
+[tool.setuptools.packages.find]
+where = ["src/"]
+include = ["kitsuyui.hello"]
 
 [tool.setuptools_scm]
 version_file = "./src/kitsuyui/hello/_version.py"
 root = "../.."
 
-[tool.pytest.ini_options]
-pythonpath = ["src"]
+[tool.uv]
+dev-dependencies = [
+    "dev-shared",
+]
 
-[tool.mypy]
-mypy_path = "src"
+[tool.uv.sources]
+dev-shared = { workspace = true }
+
+[tool.poe]
+include = "../dev-shared/poe.tasks.toml"
