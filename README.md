@@ -41,10 +41,10 @@ Each package is organized within the src directory, and the packages are publish
 
 ## Install dependencies
 
-Install dependencies with [poetry](https://python-poetry.org/).
-If you don't have poetry installed, you can install it with the following command.
+Install dependencies with [uv](https://docs.astral.sh/uv/) 
+If you don't have uv installed, you can install it with the following command.
 
-### Install poetry
+### Install uv run
 
 #### Install pipx
 
@@ -54,34 +54,34 @@ If you don't have pipx installed, you can install it with the following command 
 brew install pipx
 ```
 
-#### Install poetry
+#### Install uv
 
 ```bash
-pipx install poetry
+pipx install uv
 ```
 
 ## Install dependencies
 
 ```bash
-poetry install
+uv sync
 ```
 
 ## Run tests
 
 ```bash
-poetry poe test
+uv run poe test
 ```
 
 ## Format
 
 ```bash
-poetry poe format
+uv run poe format
 ```
 
 ## Lint
 
 ```bash
-poetry poe check
+uv run poe check
 ```
 
 # LICENSE

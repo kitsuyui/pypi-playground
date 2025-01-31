@@ -1,0 +1,21 @@
+[project]
+name = "dev-shared"
+dynamic = ["version"]
+description = "dev-shared"
+classifiers = [
+    "Private :: Do Not Upload",
+]
+requires-python = ">=3.9"
+
+dependencies = [
+    "pytest",
+    "pytest-mock",
+    "pytest-cov",
+    "poethepoet",
+    "setuptools-scm",
+    "ruff",
+    "mypy",
+]
+
+[tool.ruff]
+line-length = 79
