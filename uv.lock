@@ -136,7 +136,6 @@ wheels = [
 
 [[package]]
 name = "kitsuyui-animal"
-version = "0.7.1.dev74+gb260bb6.d20250131"
 source = { editable = "packages/kitsuyui-animal" }
 
 [package.dev-dependencies]
@@ -151,7 +150,6 @@ dev = [{ name = "dev-shared", virtual = "packages/dev-shared" }]
 
 [[package]]
 name = "kitsuyui-hello"
-version = "0.7.1.dev74+gb260bb6.d20250131"
 source = { editable = "packages/kitsuyui-hello" }
 
 [package.dev-dependencies]
