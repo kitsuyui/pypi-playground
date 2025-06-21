@@ -4,9 +4,11 @@ set -euo pipefail
 subcommand=$1
 shift
 
+# Use xargs instead find -exec to pass exit status.
+
 find packages \
 -type d \
 -not -path 'packages/dev-shared' \
 -maxdepth 1 \
 -mindepth 1 \
--exec sh -c 'cd {} && uv run poe '"$subcommand" \;
+| xargs -P 1 -n 1 -I {} sh -c "cd '{}' && uv run poe $subcommand"
