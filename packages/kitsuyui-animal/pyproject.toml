@@ -31,8 +31,8 @@ include = ["kitsuyui.animal"]
 version_file = "./src/kitsuyui/animal/_version.py"
 root = "../.."
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "dev-shared",
 ]
 
