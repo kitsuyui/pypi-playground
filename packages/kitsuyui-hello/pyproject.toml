@@ -31,8 +31,8 @@ include = ["kitsuyui.hello"]
 version_file = "./src/kitsuyui/hello/_version.py"
 root = "../.."
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "dev-shared",
 ]
 
