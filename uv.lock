@@ -6,6 +6,7 @@ requires-python = ">=3.10"
 members = [
     "dev-shared",
     "kitsuyui-animal",
+    "kitsuyui-content-addr",
     "kitsuyui-hello",
     "pypi-playground-root",
 ]
@@ -171,6 +172,20 @@ wheels = [
 [[package]]
 name = "kitsuyui-animal"
 source = { editable = "packages/kitsuyui-animal" }
+
+[package.dev-dependencies]
+dev = [
+    { name = "dev-shared" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+
+[[package]]
+name = "kitsuyui-content-addr"
+source = { editable = "packages/kitsuyui-content_addr" }
 
 [package.dev-dependencies]
 dev = [

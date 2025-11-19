@@ -1,0 +1,2 @@
+RawItem = bytes
+HashValue = bytes
