@@ -1,12 +1,15 @@
-from typing import Literal
+from __future__ import annotations
 
-from .base_store import BaseStoreProtocol
-
+from typing import Literal, Any
 
 from dataclasses import dataclass
+
+from .base_store import BaseStoreProtocol
 from ..types import RawItem, HashValue
 from ..exceptions import ItemAlreadyExists
 from ..hasher.types import HasherProtocol
+from ..hasher import factory as hasher_factory
+from .base_store import factory as store_factory
 
 
 ConflictAction = Literal["overwrite", "error", "ignore"]
@@ -17,6 +20,21 @@ VerifyAction = Literal["delete", "error", "ignore"]
 class HashStore:
     hasher: HasherProtocol
     base_store: BaseStoreProtocol
+
+    @classmethod
+    def create(
+        cls,
+        hasher_name: str,
+        store_name: str,
+        hasher_config: Any = None,
+        store_config: Any = None,
+    ) -> HashStore:
+        return factory(
+            hasher_name=hasher_name,
+            store_name=store_name,
+            hasher_config=hasher_config,
+            store_config=store_config,
+        )
 
     def compute_hash(self, item: RawItem) -> HashValue:
         """Compute and return the hash value of the given item."""
@@ -106,6 +124,18 @@ class HashStore:
             )
         self._store_raw(hash_value, item)
         return hash_value
+
+
+def factory(
+    hasher_name: str,
+    store_name: str,
+    hasher_config: Any = None,
+    store_config: Any = None,
+) -> HashStore:
+    """Factory function for creating a HashStore instance."""
+    hasher = hasher_factory(hasher_name, hasher_config)
+    base_store = store_factory(store_name, store_config)
+    return HashStore(hasher=hasher, base_store=base_store)
 
 
 __all__ = [

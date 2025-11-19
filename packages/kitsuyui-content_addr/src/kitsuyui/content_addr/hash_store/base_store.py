@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import asyncio
 
-from typing import Protocol
+from typing import Protocol, Callable
+import functools
 
 from ..types import RawItem, HashValue
 
@@ -86,3 +89,44 @@ def wrap_async_store_as_sync(
 
     Wrapped.__name__ = name
     return Wrapped
+
+
+STORE_FACTORIES: dict[str, Callable[..., BaseStoreProtocol]] = {}
+
+
+def __register_store(name: str, factory: Callable[..., BaseStoreProtocol]) -> None:
+    """Register a store class with the given name."""
+    STORE_FACTORIES[name] = factory
+
+
+def register_store_factory(name: str):
+    """Decorator for registering a store factory function.
+
+    Usage:
+
+    @register_store_factory("my_store")
+    def factory(...) -> BaseStoreProtocol:
+        ...
+    """
+
+    def decorator(
+        factory: Callable[..., BaseStoreProtocol],
+    ) -> Callable[..., BaseStoreProtocol]:
+        __register_store(name, factory)
+
+        @functools.wraps(factory)
+        def wrapper(*args, **kwargs) -> BaseStoreProtocol:
+            store_class = factory(*args, **kwargs)
+            return store_class
+
+        return wrapper
+
+    return decorator
+
+
+def factory(name: str, *args, **kwargs) -> BaseStoreProtocol:
+    """Factory function for creating a store instance by name."""
+    if name not in STORE_FACTORIES:
+        raise ValueError(f"Store '{name}' is not registered.")
+    store_factory = STORE_FACTORIES[name]
+    return store_factory(*args, **kwargs)

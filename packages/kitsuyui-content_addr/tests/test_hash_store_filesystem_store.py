@@ -1,8 +1,19 @@
-from kitsuyui.content_addr.hash_store.dict_store import DictStore, factory
+import pathlib
+import tempfile
+
+import pytest
+
+from kitsuyui.content_addr.hash_store.filesystem_store import FileSystemStore, factory
 
 
-def test_dict_store_store_and_retrieve() -> None:
-    store = DictStore()
+@pytest.fixture(scope="function", autouse=True)
+def temp_dir():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        yield temp_dir
+
+
+def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
     hash_value = b"hash1"
     item = b"item1"
 
@@ -34,6 +45,6 @@ def test_dict_store_store_and_retrieve() -> None:
     assert not store.stores(hash_value)
 
 
-def test_dict_store_factory() -> None:
-    store = factory(None)
-    assert isinstance(store, DictStore)
+def test_filesystem_store_factory(temp_dir) -> None:
+    store = factory({"repo_dir": temp_dir})
+    assert isinstance(store, FileSystemStore)

@@ -1,4 +1,5 @@
-from .base_store import BaseStoreProtocol
+from typing import Any
+from .base_store import BaseStoreProtocol, register_store_factory
 from ..types import HashValue, RawItem
 
 
@@ -27,3 +28,9 @@ class DictStore(BaseStoreProtocol):
 
     def destroy(self) -> None:
         self.clear()
+
+
+@register_store_factory("dict_store")
+def factory(config: Any) -> BaseStoreProtocol:
+    """Factory function for creating a DictStore class."""
+    return DictStore()
