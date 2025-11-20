@@ -18,7 +18,7 @@ jobs:
       matrix:
         targets: ['kitsuyui-animal', 'kitsuyui-hello']
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up Python
         id: setup-python
