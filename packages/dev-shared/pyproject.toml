@@ -15,6 +15,7 @@ dependencies = [
     "setuptools-scm",
     "ruff",
     "mypy",
+    "ty>=0.0.1a32",
 ]
 
 [tool.ruff]

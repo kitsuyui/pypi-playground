@@ -8,6 +8,7 @@ syntax_check = [
 ]
 type_check = [
     {cmd = "env MYPYPATH=src mypy --namespace-packages --explicit-package-bases src tests"},
+    {cmd = "ty check src tests"},
 ]
 check = [
     {cmd = "poe syntax_check"},
