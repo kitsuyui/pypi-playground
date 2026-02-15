@@ -1,6 +1,6 @@
 # pypi-playground
 
-[![codecov](https://codecov.io/gh/kitsuyui/pypi-playground/graph/badge.svg?token=CACIMSLMTV)](https://codecov.io/gh/kitsuyui/pypi-playground)
+![Coverage](https://raw.githubusercontent.com/kitsuyui/octocov-central/main/badges/kitsuyui/pypi-playground/coverage.svg)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 ## What is this?
