@@ -12,6 +12,12 @@ Homepage = "https://github.com/kitsuyui/pypi-playground"
 [tool.uv.workspace]
 members = ["packages/*"]
 
+[tool.uv]
+# Source of truth:
+# https://github.com/kitsuyui/kitsuyui/wiki/Official-Information-for-Dependency-Update-Policies
+# PyPI policy in this repo uses a 2 day quarantine window.
+exclude-newer = "2 days"
+
 [dependency-groups]
 dev = [
     "poethepoet",
@@ -36,4 +42,3 @@ type_check = { cmd = "./bin/run-each type_check" }
 test = { cmd = "./bin/run-each test" }
 coverage = { cmd = "./bin/run-each coverage" }
 build = { cmd = "./bin/run-each build" }
-
