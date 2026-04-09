@@ -1,0 +1,28 @@
+line-length = 79
+
+[lint]
+select = [
+    "A",
+    "ANN",
+    "ARG",
+    "B",
+    "C4",
+    "C90",
+    "E",
+    "F",
+    "I",
+    "PERF",
+    "PLE",
+    "PTH",
+    "RET",
+    "RUF",
+    "S",
+    "SIM",
+    "SLOT",
+    "UP",
+    "W",
+]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = ["ANN", "D", "S101"]
+"src/**/_version.py" = ["RUF022"]

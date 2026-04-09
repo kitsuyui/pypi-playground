@@ -3,7 +3,10 @@ import tempfile
 
 import pytest
 
-from kitsuyui.content_addr.hash_store.filesystem_store import FileSystemStore, factory
+from kitsuyui.content_addr.hash_store.filesystem_store import (
+    FileSystemStore,
+    factory,
+)
 
 
 @pytest.fixture(scope="function", autouse=True)

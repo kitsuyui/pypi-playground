@@ -1,6 +1,5 @@
-from typing import Any
-from .base_store import BaseStoreProtocol, register_store_factory
 from ..types import HashValue, RawItem
+from .base_store import BaseStoreProtocol, register_store_factory
 
 
 class DictStore(BaseStoreProtocol):
@@ -31,6 +30,6 @@ class DictStore(BaseStoreProtocol):
 
 
 @register_store_factory("dict_store")
-def factory(config: Any) -> BaseStoreProtocol:
+def factory(_config: object | None = None) -> BaseStoreProtocol:
     """Factory function for creating a DictStore class."""
     return DictStore()

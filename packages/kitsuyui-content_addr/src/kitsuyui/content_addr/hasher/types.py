@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from ..types import RawItem, HashValue
+from ..types import HashValue, RawItem
 
 
 class HasherProtocol(Protocol):

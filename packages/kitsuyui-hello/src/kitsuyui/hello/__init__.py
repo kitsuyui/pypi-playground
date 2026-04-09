@@ -1,6 +1,7 @@
 """Hello, World! package.
 
-This package provides a simple function to generate a greeting message "Hello, World!".
+This package provides a simple function to generate
+a greeting message "Hello, World!".
 And also provides a function to print the message.
 This package is just for example.
 
@@ -21,7 +22,7 @@ def hello_world() -> str:
     return "Hello, World!"
 
 
-def print_hello_world():
+def print_hello_world() -> None:
     """Print greeting message "Hello, World!"."""
     print(hello_world())
 

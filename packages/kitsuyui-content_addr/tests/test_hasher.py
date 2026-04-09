@@ -1,4 +1,4 @@
-from kitsuyui.content_addr.hasher import SHA256Hasher, MD5Hasher
+from kitsuyui.content_addr.hasher import MD5Hasher, SHA256Hasher
 
 
 def test_sha256_hasher() -> None:

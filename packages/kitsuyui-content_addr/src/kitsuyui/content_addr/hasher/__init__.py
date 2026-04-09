@@ -1,9 +1,13 @@
-import hashlib
-from typing import Any, Callable
 import functools
+import hashlib
+from collections.abc import Callable
+from typing import ParamSpec, TypeVar
 
+from ..types import HashValue, RawItem
 from .types import HasherProtocol
-from ..types import RawItem, HashValue
+
+P = ParamSpec("P")
+THasher = TypeVar("THasher", bound=HasherProtocol)
 
 
 """
@@ -30,12 +34,16 @@ def generate_hasher(name: str) -> type[HasherProtocol]:
 HASHER_REGISTRY: dict[str, Callable[..., HasherProtocol]] = {}
 
 
-def __register_hasher(name: str, hasher_factory: Callable[..., HasherProtocol]) -> None:
+def __register_hasher(
+    name: str, hasher_factory: Callable[..., HasherProtocol]
+) -> None:
     """Register a hasher class with the given name."""
     HASHER_REGISTRY[name] = hasher_factory
 
 
-def register_hasher_factory(name: str):
+def register_hasher_factory(
+    name: str,
+) -> Callable[[Callable[P, THasher]], Callable[P, THasher]]:
     """Decorator for registering a hasher factory function.
 
     Usage:
@@ -45,22 +53,19 @@ def register_hasher_factory(name: str):
         ...
     """
 
-    def decorator(
-        factory: Callable[..., HasherProtocol],
-    ) -> Callable[..., HasherProtocol]:
+    def decorator(factory: Callable[P, THasher]) -> Callable[P, THasher]:
         __register_hasher(name, factory)
 
         @functools.wraps(factory)
-        def wrapper(*args, **kwargs) -> HasherProtocol:
-            hasher = factory(*args, **kwargs)
-            return hasher
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> THasher:
+            return factory(*args, **kwargs)
 
         return wrapper
 
     return decorator
 
 
-def factory(name: str, *args, **kwargs) -> HasherProtocol:
+def factory(name: str, *args: object, **kwargs: object) -> HasherProtocol:
     """Factory function for creating a hasher instance by name."""
     if name not in HASHER_REGISTRY:
         raise ValueError(f"Hasher '{name}' is not registered.")
@@ -73,21 +78,21 @@ MD5Hasher = generate_hasher("md5")
 
 
 @register_hasher_factory("sha256")
-def sha256_factory(config: Any) -> HasherProtocol:
+def sha256_factory(_config: object | None = None) -> HasherProtocol:
     """Factory function for creating a SHA256Hasher class."""
     return SHA256Hasher()
 
 
 @register_hasher_factory("md5")
-def md5_factory(config: Any) -> HasherProtocol:
+def md5_factory(_config: object | None = None) -> HasherProtocol:
     """Factory function for creating a MD5Hasher class."""
     return MD5Hasher()
 
 
 __all__ = [
     "HasherProtocol",
-    "SHA256Hasher",
     "MD5Hasher",
+    "SHA256Hasher",
     "generate_hasher",
     "register_hasher_factory",
 ]

@@ -1,10 +1,11 @@
 import tempfile
+
 import pytest
 
-from kitsuyui.content_addr.hash_store import HashStore, factory
-from kitsuyui.content_addr.hasher import SHA256Hasher
-from kitsuyui.content_addr.hash_store.dict_store import DictStore
 from kitsuyui.content_addr.exceptions import ItemAlreadyExists
+from kitsuyui.content_addr.hash_store import HashStore, factory
+from kitsuyui.content_addr.hash_store.dict_store import DictStore
+from kitsuyui.content_addr.hasher import SHA256Hasher
 
 
 def test_example_usage() -> None:
@@ -24,10 +25,10 @@ def test_hash_store() -> None:
     retrieved_item = store.retrieve(hash_value)
     assert retrieved_item == item
 
-    # storing the same item again should be fine (default conflict action is 'ignore')
+    # Storing the same item again should be fine.
     store.store(item)
 
-    # trying to store the same item with conflict action 'error' should raise ItemAlreadyExists
+    # Conflict action "error" should raise ItemAlreadyExists.
     with pytest.raises(ItemAlreadyExists):
         store.store(item, conflicts="error")
 
@@ -40,7 +41,7 @@ def test_hash_store() -> None:
     with pytest.raises(ValueError):
         store.verify(hash_value, action="error")
 
-    # overwrite the corrupted item with the correct one and test overwrite action
+    # Overwrite the corrupted item with the correct one.
     store.store(item, conflicts="overwrite")
     assert store.verify(hash_value, action="ignore")
 

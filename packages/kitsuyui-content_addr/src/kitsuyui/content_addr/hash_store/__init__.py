@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from typing import Literal, Any
-
 from dataclasses import dataclass
+from typing import Literal
 
-from .base_store import BaseStoreProtocol
-from ..types import RawItem, HashValue
 from ..exceptions import ItemAlreadyExists
-from ..hasher.types import HasherProtocol
 from ..hasher import factory as hasher_factory
+from ..hasher.types import HasherProtocol
+from ..types import HashValue, RawItem
+from .base_store import BaseStoreProtocol
 from .base_store import factory as store_factory
-
 
 ConflictAction = Literal["overwrite", "error", "ignore"]
 VerifyAction = Literal["delete", "error", "ignore"]
+StoreConfig = dict[str, str | None]
 
 
 @dataclass
@@ -26,8 +25,8 @@ class HashStore:
         cls,
         hasher_name: str,
         store_name: str,
-        hasher_config: Any = None,
-        store_config: Any = None,
+        hasher_config: object | None = None,
+        store_config: StoreConfig | None = None,
     ) -> HashStore:
         return factory(
             hasher_name=hasher_name,
@@ -53,12 +52,14 @@ class HashStore:
         self.base_store.delete(hash_value)
 
     def is_valid_stored_item(self, hash_value: HashValue) -> bool:
-        """Validate the already stored item by recomputing its hash and comparing it to the given hash value."""
+        """Validate a stored item by recomputing its hash."""
         item = self.retrieve(hash_value)
         computed_hash = self.compute_hash(item)
         return computed_hash == hash_value
 
-    def verify(self, hash_value: HashValue, *, action: VerifyAction = "error") -> bool:
+    def verify(
+        self, hash_value: HashValue, *, action: VerifyAction = "error"
+    ) -> bool:
         """Verify the stored item with the given hash value.
         action:
             - 'delete': delete the item if invalid
@@ -129,8 +130,8 @@ class HashStore:
 def factory(
     hasher_name: str,
     store_name: str,
-    hasher_config: Any = None,
-    store_config: Any = None,
+    hasher_config: object | None = None,
+    store_config: StoreConfig | None = None,
 ) -> HashStore:
     """Factory function for creating a HashStore instance."""
     hasher = hasher_factory(hasher_name, hasher_config)
@@ -139,7 +140,7 @@ def factory(
 
 
 __all__ = [
-    "HashStore",
     "BaseStoreProtocol",
     "ConflictAction",
+    "HashStore",
 ]
