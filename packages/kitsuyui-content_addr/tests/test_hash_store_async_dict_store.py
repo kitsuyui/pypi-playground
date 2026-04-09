@@ -1,5 +1,7 @@
 from kitsuyui.content_addr.hash_store.async_dict_store import AsyncDictStore
-from kitsuyui.content_addr.hash_store.base_store import wrap_async_store_as_sync
+from kitsuyui.content_addr.hash_store.base_store import (
+    wrap_async_store_as_sync,
+)
 
 
 def test_async_dict_store_store_and_retrieve() -> None:

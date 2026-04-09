@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import asyncio
-
-from typing import Protocol, Callable
 import functools
+from collections.abc import Callable
+from typing import ParamSpec, Protocol, TypeVar
 
-from ..types import RawItem, HashValue
+from ..types import HashValue, RawItem
 
 
 class BaseStoreProtocol(Protocol):
     """Protocol for a basic hash store.
 
-    This defines the essential methods that any hash store implementation must provide.
+    This defines the essential methods that any hash store
+    implementation must provide.
     More specific methods are defined in HashStore
     """
 
@@ -37,7 +38,8 @@ class BaseStoreProtocol(Protocol):
 class AsyncBaseStoreProtocol(Protocol):
     """Protocol for an asynchronous basic hash store.
 
-    This defines the essential methods that any async hash store implementation must provide.
+    This defines the essential methods that any async hash store
+    implementation must provide.
     More specific methods are defined in HashStore
     """
 
@@ -60,13 +62,17 @@ class AsyncBaseStoreProtocol(Protocol):
         """Destroy the store and clean up any resources."""
 
 
+P = ParamSpec("P")
+TStore = TypeVar("TStore", bound="BaseStoreProtocol")
+
+
 def wrap_async_store_as_sync(
     name: str, async_store_class: type[AsyncBaseStoreProtocol]
 ) -> type[BaseStoreProtocol]:
     """Convert an asynchronous store to a synchronous store."""
 
     class Wrapped(BaseStoreProtocol):
-        def __init__(self, *args, **kwargs) -> None:
+        def __init__(self, *args: object, **kwargs: object) -> None:
             self.async_store = async_store_class(*args, **kwargs)
 
         def store_item(self, hash_value: HashValue, item: RawItem) -> None:
@@ -94,12 +100,16 @@ def wrap_async_store_as_sync(
 STORE_FACTORIES: dict[str, Callable[..., BaseStoreProtocol]] = {}
 
 
-def __register_store(name: str, factory: Callable[..., BaseStoreProtocol]) -> None:
+def __register_store(
+    name: str, factory: Callable[..., BaseStoreProtocol]
+) -> None:
     """Register a store class with the given name."""
     STORE_FACTORIES[name] = factory
 
 
-def register_store_factory(name: str):
+def register_store_factory(
+    name: str,
+) -> Callable[[Callable[P, TStore]], Callable[P, TStore]]:
     """Decorator for registering a store factory function.
 
     Usage:
@@ -109,22 +119,21 @@ def register_store_factory(name: str):
         ...
     """
 
-    def decorator(
-        factory: Callable[..., BaseStoreProtocol],
-    ) -> Callable[..., BaseStoreProtocol]:
+    def decorator(factory: Callable[P, TStore]) -> Callable[P, TStore]:
         __register_store(name, factory)
 
         @functools.wraps(factory)
-        def wrapper(*args, **kwargs) -> BaseStoreProtocol:
-            store_class = factory(*args, **kwargs)
-            return store_class
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> TStore:
+            return factory(*args, **kwargs)
 
         return wrapper
 
     return decorator
 
 
-def factory(name: str, *args, **kwargs) -> BaseStoreProtocol:
+def factory(
+    name: str, *args: object, **kwargs: object
+) -> BaseStoreProtocol:
     """Factory function for creating a store instance by name."""
     if name not in STORE_FACTORIES:
         raise ValueError(f"Store '{name}' is not registered.")

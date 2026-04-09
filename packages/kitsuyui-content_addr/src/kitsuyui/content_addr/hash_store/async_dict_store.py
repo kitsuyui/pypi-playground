@@ -1,8 +1,8 @@
 import asyncio
 
+from ..types import HashValue, RawItem
 from .base_store import AsyncBaseStoreProtocol
 from .dict_store import DictStore
-from ..types import HashValue, RawItem
 
 
 class AsyncDictStore(AsyncBaseStoreProtocol):

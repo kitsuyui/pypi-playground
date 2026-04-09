@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pathlib
+from typing import cast
 
-from typing import Any
-from .base_store import BaseStoreProtocol, register_store_factory
 from ..types import HashValue, RawItem
+from .base_store import BaseStoreProtocol, register_store_factory
 
 
 class FileSystemStore(BaseStoreProtocol):
@@ -20,7 +20,7 @@ class FileSystemStore(BaseStoreProtocol):
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         file_path = self.parent_dir / hash_value.hex()
-        with open(file_path, "wb") as f:
+        with file_path.open("wb") as f:
             f.write(item)
 
     def stores(self, hash_value: HashValue) -> bool:
@@ -29,7 +29,7 @@ class FileSystemStore(BaseStoreProtocol):
 
     def retrieve(self, hash_value: HashValue) -> RawItem:
         file_path = self.parent_dir / hash_value.hex()
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             return f.read()
 
     def delete(self, hash_value: HashValue) -> None:
@@ -47,7 +47,7 @@ class FileSystemStore(BaseStoreProtocol):
 
 
 @register_store_factory("filesystem_store")
-def factory(config: Any) -> BaseStoreProtocol:
+def factory(config: object | None = None) -> BaseStoreProtocol:
     """Factory function for creating a FileSystemStore class."""
 
     repo_key = "repo_dir"
@@ -55,7 +55,8 @@ def factory(config: Any) -> BaseStoreProtocol:
     if not isinstance(config, dict) or repo_key not in config:
         raise ValueError("Invalid config for FileSystemStore")
 
-    repo_dir = config[repo_key]
+    typed_config = cast(dict[str, object], config)
+    repo_dir = typed_config[repo_key]
     if not isinstance(repo_dir, (str, pathlib.Path)):
         raise ValueError(f"{repo_key} must be a string or pathlib.Path")
 

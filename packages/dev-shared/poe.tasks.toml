@@ -1,10 +1,10 @@
 [tool.poe.tasks]
 
 format = [
-    {cmd = "ruff format src tests"},
+    {cmd = "ruff format src tests --config ../dev-shared/ruff.toml"},
 ]
 syntax_check = [
-    {cmd = "ruff check src tests"},
+    {cmd = "ruff check src tests --config ../dev-shared/ruff.toml"},
 ]
 type_check = [
     {cmd = "env MYPYPATH=src mypy --namespace-packages --explicit-package-bases src tests"},
