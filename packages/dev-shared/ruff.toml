@@ -25,3 +25,4 @@ select = [
 
 [lint.per-file-ignores]
 "tests/**/*.py" = ["ANN", "D", "S101"]
+"src/**/_version.py" = ["RUF022"]
