@@ -32,6 +32,9 @@ def test_hash_store() -> None:
     with pytest.raises(ItemAlreadyExists):
         store.store(item, conflicts="error")
 
+    with pytest.raises(ValueError):
+        store.store(item, conflicts="unexpected")  # type: ignore[arg-type]
+
     # validate stored item should return True
     assert store.verify(hash_value, action="ignore")
 
@@ -40,6 +43,8 @@ def test_hash_store() -> None:
     assert not store.verify(hash_value, action="ignore")
     with pytest.raises(ValueError):
         store.verify(hash_value, action="error")
+    with pytest.raises(ValueError):
+        store.verify(hash_value, action="unexpected")  # type: ignore[arg-type]
 
     # Overwrite the corrupted item with the correct one.
     store.store(item, conflicts="overwrite")

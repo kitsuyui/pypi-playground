@@ -57,6 +57,30 @@ class HashStore:
         computed_hash = self.compute_hash(item)
         return computed_hash == hash_value
 
+    def _delete_invalid_stored_item(self, hash_value: HashValue) -> None:
+        self.delete(hash_value)
+
+    def _raise_invalid_stored_item(self, hash_value: HashValue) -> None:
+        raise ValueError(
+            f"Stored item with hash {hash_value.hex()} is invalid."
+        )
+
+    def _ignore_invalid_stored_item(self, _hash_value: HashValue) -> None:
+        return None
+
+    def _handle_invalid_stored_item(
+        self, hash_value: HashValue, action: VerifyAction
+    ) -> None:
+        handlers = {
+            "delete": self._delete_invalid_stored_item,
+            "error": self._raise_invalid_stored_item,
+            "ignore": self._ignore_invalid_stored_item,
+        }
+        handler = handlers.get(action)
+        if handler is None:
+            raise ValueError(f"Invalid verify action: {action}")
+        handler(hash_value)
+
     def verify(
         self, hash_value: HashValue, *, action: VerifyAction = "error"
     ) -> bool:
@@ -68,21 +92,49 @@ class HashStore:
         Returns True if the item is valid, False otherwise.
         """
         is_valid = self.is_valid_stored_item(hash_value)
-        if not is_valid:
-            if action == "delete":
-                self.delete(hash_value)
-            elif action == "error":
-                raise ValueError(
-                    f"Stored item with hash {hash_value.hex()} is invalid."
-                )
-            elif action == "ignore":
-                pass
-            else:
-                raise ValueError(f"Invalid verify action: {action}")
-        return is_valid
+        if is_valid:
+            return True
+        self._handle_invalid_stored_item(hash_value, action)
+        return False
 
     def _store_raw(self, hash_value: HashValue, item: RawItem) -> None:
         self.base_store.store_item(hash_value, item)
+
+    def _store_overwriting(
+        self, hash_value: HashValue, item: RawItem
+    ) -> None:
+        self._store_raw(hash_value, item)
+
+    def _store_with_error_on_conflict(
+        self, hash_value: HashValue, item: RawItem
+    ) -> None:
+        if self.stores(hash_value):
+            raise ItemAlreadyExists(
+                f"Item with hash {hash_value.hex()} already exists."
+            )
+        self._store_raw(hash_value, item)
+
+    def _store_ignoring_conflicts(
+        self, hash_value: HashValue, item: RawItem
+    ) -> None:
+        if not self.stores(hash_value):
+            self._store_raw(hash_value, item)
+
+    def _store_with_conflict_policy(
+        self,
+        hash_value: HashValue,
+        item: RawItem,
+        conflicts: ConflictAction,
+    ) -> None:
+        handlers = {
+            "overwrite": self._store_overwriting,
+            "error": self._store_with_error_on_conflict,
+            "ignore": self._store_ignoring_conflicts,
+        }
+        handler = handlers.get(conflicts)
+        if handler is None:
+            raise ValueError(f"Invalid conflict action: {conflicts}")
+        handler(hash_value, item)
 
     def store(
         self, item: RawItem, *, conflicts: ConflictAction = "ignore"
@@ -94,19 +146,7 @@ class HashStore:
             - 'ignore': do nothing if item already exists (default)
         """
         hash_value = self.compute_hash(item)
-        if conflicts == "overwrite":
-            self._store_raw(hash_value, item)
-        elif conflicts == "error":
-            if self.stores(hash_value):
-                raise ItemAlreadyExists(
-                    f"Item with hash {hash_value.hex()} already exists."
-                )
-            self._store_raw(hash_value, item)
-        elif conflicts == "ignore":
-            if not self.stores(hash_value):
-                self.base_store.store_item(hash_value, item)
-        else:
-            raise ValueError(f"Invalid conflict action: {conflicts}")
+        self._store_with_conflict_policy(hash_value, item, conflicts)
         return hash_value
 
     def store_if_not_exists(self, item: RawItem) -> HashValue:

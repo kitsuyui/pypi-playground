@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import functools
 from collections.abc import Callable
-from typing import ParamSpec, Protocol, TypeVar
+from typing import ClassVar, ParamSpec, Protocol, TypeVar, cast
 
 from ..types import HashValue, RawItem
 
@@ -66,33 +66,50 @@ P = ParamSpec("P")
 TStore = TypeVar("TStore", bound="BaseStoreProtocol")
 
 
+class SyncWrappedStoreBase(BaseStoreProtocol):
+    """Base class for sync adapters backed by an async store."""
+
+    async_store_class: ClassVar[type[AsyncBaseStoreProtocol]]
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        self.async_store = self.async_store_class(*args, **kwargs)
+
+    def _run_async_store_method(
+        self, method_name: str, *args: object
+    ) -> object:
+        method = getattr(self.async_store, method_name)
+        return asyncio.run(method(*args))
+
+    def store_item(self, hash_value: HashValue, item: RawItem) -> None:
+        self._run_async_store_method("store_item", hash_value, item)
+
+    def stores(self, hash_value: HashValue) -> bool:
+        return cast(bool, self._run_async_store_method("stores", hash_value))
+
+    def retrieve(self, hash_value: HashValue) -> RawItem:
+        return cast(
+            RawItem, self._run_async_store_method("retrieve", hash_value)
+        )
+
+    def delete(self, hash_value: HashValue) -> None:
+        self._run_async_store_method("delete", hash_value)
+
+    def clear(self) -> None:
+        self._run_async_store_method("clear")
+
+    def destroy(self) -> None:
+        self._run_async_store_method("destroy")
+
+
 def wrap_async_store_as_sync(
     name: str, async_store_class: type[AsyncBaseStoreProtocol]
 ) -> type[BaseStoreProtocol]:
     """Convert an asynchronous store to a synchronous store."""
 
-    class Wrapped(BaseStoreProtocol):
-        def __init__(self, *args: object, **kwargs: object) -> None:
-            self.async_store = async_store_class(*args, **kwargs)
+    class Wrapped(SyncWrappedStoreBase):
+        pass
 
-        def store_item(self, hash_value: HashValue, item: RawItem) -> None:
-            return asyncio.run(self.async_store.store_item(hash_value, item))
-
-        def stores(self, hash_value: HashValue) -> bool:
-            return asyncio.run(self.async_store.stores(hash_value))
-
-        def retrieve(self, hash_value: HashValue) -> RawItem:
-            return asyncio.run(self.async_store.retrieve(hash_value))
-
-        def delete(self, hash_value: HashValue) -> None:
-            return asyncio.run(self.async_store.delete(hash_value))
-
-        def clear(self) -> None:
-            return asyncio.run(self.async_store.clear())
-
-        def destroy(self) -> None:
-            return asyncio.run(self.async_store.destroy())
-
+    Wrapped.async_store_class = async_store_class
     Wrapped.__name__ = name
     return Wrapped
 
