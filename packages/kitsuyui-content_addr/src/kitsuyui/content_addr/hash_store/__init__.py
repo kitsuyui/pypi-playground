@@ -84,6 +84,42 @@ class HashStore:
     def _store_raw(self, hash_value: HashValue, item: RawItem) -> None:
         self.base_store.store_item(hash_value, item)
 
+    def _store_overwriting(
+        self, hash_value: HashValue, item: RawItem
+    ) -> None:
+        self._store_raw(hash_value, item)
+
+    def _store_with_error_on_conflict(
+        self, hash_value: HashValue, item: RawItem
+    ) -> None:
+        if self.stores(hash_value):
+            raise ItemAlreadyExists(
+                f"Item with hash {hash_value.hex()} already exists."
+            )
+        self._store_raw(hash_value, item)
+
+    def _store_ignoring_conflicts(
+        self, hash_value: HashValue, item: RawItem
+    ) -> None:
+        if not self.stores(hash_value):
+            self._store_raw(hash_value, item)
+
+    def _store_with_conflict_policy(
+        self,
+        hash_value: HashValue,
+        item: RawItem,
+        conflicts: ConflictAction,
+    ) -> None:
+        handlers = {
+            "overwrite": self._store_overwriting,
+            "error": self._store_with_error_on_conflict,
+            "ignore": self._store_ignoring_conflicts,
+        }
+        handler = handlers.get(conflicts)
+        if handler is None:
+            raise ValueError(f"Invalid conflict action: {conflicts}")
+        handler(hash_value, item)
+
     def store(
         self, item: RawItem, *, conflicts: ConflictAction = "ignore"
     ) -> HashValue:
@@ -94,19 +130,7 @@ class HashStore:
             - 'ignore': do nothing if item already exists (default)
         """
         hash_value = self.compute_hash(item)
-        if conflicts == "overwrite":
-            self._store_raw(hash_value, item)
-        elif conflicts == "error":
-            if self.stores(hash_value):
-                raise ItemAlreadyExists(
-                    f"Item with hash {hash_value.hex()} already exists."
-                )
-            self._store_raw(hash_value, item)
-        elif conflicts == "ignore":
-            if not self.stores(hash_value):
-                self.base_store.store_item(hash_value, item)
-        else:
-            raise ValueError(f"Invalid conflict action: {conflicts}")
+        self._store_with_conflict_policy(hash_value, item, conflicts)
         return hash_value
 
     def store_if_not_exists(self, item: RawItem) -> HashValue:

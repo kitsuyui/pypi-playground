@@ -28,4 +28,4 @@ select = [
 "src/**/_version.py" = ["RUF022"]
 
 [lint.mccabe]
-max-complexity = 6
+max-complexity = 5
