@@ -46,7 +46,7 @@ jobs:
         run: |
           actual_version=$(uv run python --version)
           expected_version="Python ${{ matrix.python }}"
-          if [ "$actual_version" == *"$expected_version"* ]; then
+          if [[ "$actual_version" != *"$expected_version"* ]]; then
             echo "Expected $expected_version, but got $actual_version"
             exit 1
           fi
@@ -56,4 +56,3 @@ jobs:
 
       - name: Coverage
         run: uv run poe coverage
-
