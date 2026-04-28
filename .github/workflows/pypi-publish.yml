@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        targets: ['kitsuyui-animal', 'kitsuyui-hello']
+        targets: ['kitsuyui-animal', 'kitsuyui-content_addr', 'kitsuyui-hello']
     steps:
       - uses: actions/checkout@v6
 
