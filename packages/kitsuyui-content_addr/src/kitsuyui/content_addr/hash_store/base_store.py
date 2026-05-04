@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import functools
-from collections.abc import Callable
-from typing import ClassVar, ParamSpec, Protocol, TypeVar, cast
+from collections.abc import Callable, Coroutine
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, ClassVar, ParamSpec, Protocol, TypeVar, cast
 
 from ..types import HashValue, RawItem
 
@@ -63,7 +64,42 @@ class AsyncBaseStoreProtocol(Protocol):
 
 
 P = ParamSpec("P")
+R = TypeVar("R")
 TStore = TypeVar("TStore", bound="BaseStoreProtocol")
+AsyncStoreMethod = Callable[..., Coroutine[Any, Any, object]]
+
+
+def _has_running_loop() -> bool:
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return False
+    return True
+
+
+def _run_coroutine(
+    coroutine_factory: Callable[[], Coroutine[Any, Any, R]],
+) -> R:
+    return asyncio.run(coroutine_factory())
+
+
+def _run_coroutine_in_thread(
+    coroutine_factory: Callable[[], Coroutine[Any, Any, R]],
+) -> R:
+    def run() -> R:
+        return _run_coroutine(coroutine_factory)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(run)
+        return future.result()
+
+
+def _run_coroutine_sync(
+    coroutine_factory: Callable[[], Coroutine[Any, Any, R]],
+) -> R:
+    if _has_running_loop():
+        return _run_coroutine_in_thread(coroutine_factory)
+    return _run_coroutine(coroutine_factory)
 
 
 class SyncWrappedStoreBase(BaseStoreProtocol):
@@ -77,8 +113,8 @@ class SyncWrappedStoreBase(BaseStoreProtocol):
     def _run_async_store_method(
         self, method_name: str, *args: object
     ) -> object:
-        method = getattr(self.async_store, method_name)
-        return asyncio.run(method(*args))
+        method = cast(AsyncStoreMethod, getattr(self.async_store, method_name))
+        return _run_coroutine_sync(lambda: method(*args))
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         self._run_async_store_method("store_item", hash_value, item)
