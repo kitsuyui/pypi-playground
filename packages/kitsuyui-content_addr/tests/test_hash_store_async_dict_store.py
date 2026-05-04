@@ -1,3 +1,5 @@
+import asyncio
+
 from kitsuyui.content_addr.hash_store.async_dict_store import AsyncDictStore
 from kitsuyui.content_addr.hash_store.base_store import (
     wrap_async_store_as_sync,
@@ -36,3 +38,19 @@ def test_async_dict_store_store_and_retrieve() -> None:
     # destroy store (should be no-op for DictStore)
     store.destroy()
     assert not store.stores(hash_value)
+
+
+async def _store_and_retrieve_inside_running_loop() -> None:
+    DictStore2 = wrap_async_store_as_sync("DictStore2", AsyncDictStore)
+    store = DictStore2()
+    hash_value = b"hash1"
+    item = b"item1"
+
+    store.store_item(hash_value, item)
+
+    assert store.stores(hash_value)
+    assert store.retrieve(hash_value) == item
+
+
+def test_async_dict_store_wrapped_sync_inside_running_loop() -> None:
+    asyncio.run(_store_and_retrieve_inside_running_loop())
