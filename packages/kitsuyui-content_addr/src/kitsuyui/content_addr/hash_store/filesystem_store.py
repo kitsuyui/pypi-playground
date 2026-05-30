@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import pathlib
 from typing import cast
 
@@ -10,13 +11,23 @@ from .base_store import BaseStoreProtocol, register_store_factory
 class FileSystemStore(BaseStoreProtocol):
     """File-based hash store implementation."""
 
-    def __init__(self, parent_dir: pathlib.Path) -> None:
+    METADATA_FILENAME = "_metadata.json"
+
+    def __init__(
+        self, parent_dir: pathlib.Path, hasher_name: str | None = None
+    ) -> None:
         self.parent_dir = pathlib.Path(parent_dir)
         self.parent_dir.mkdir(parents=True, exist_ok=True)
+        if hasher_name is not None:
+            metadata_path = self.parent_dir / self.METADATA_FILENAME
+            with metadata_path.open("w") as f:
+                json.dump({"schema_version": 1, "hasher": hasher_name}, f)
 
     @classmethod
-    def create(cls, parent_dir: pathlib.Path | str) -> FileSystemStore:
-        return cls(pathlib.Path(parent_dir))
+    def create(
+        cls, parent_dir: pathlib.Path | str, hasher_name: str | None = None
+    ) -> FileSystemStore:
+        return cls(pathlib.Path(parent_dir), hasher_name=hasher_name)
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         file_path = self.parent_dir / hash_value.hex()
@@ -38,7 +49,10 @@ class FileSystemStore(BaseStoreProtocol):
 
     def clear(self) -> None:
         for file_path in self.parent_dir.iterdir():
-            if file_path.is_file():
+            if (
+                file_path.is_file()
+                and file_path.name != self.METADATA_FILENAME
+            ):
                 file_path.unlink()
 
     def destroy(self) -> None:
@@ -60,4 +74,6 @@ def factory(config: object | None = None) -> BaseStoreProtocol:
     if not isinstance(repo_dir, (str, pathlib.Path)):
         raise ValueError(f"{repo_key} must be a string or pathlib.Path")
 
-    return FileSystemStore.create(repo_dir)
+    hasher_name = typed_config.get("hasher_name")
+    hasher_name_str = str(hasher_name) if hasher_name is not None else None
+    return FileSystemStore.create(repo_dir, hasher_name=hasher_name_str)

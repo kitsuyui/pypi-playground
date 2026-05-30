@@ -1,3 +1,4 @@
+import json
 import pathlib
 import tempfile
 
@@ -51,3 +52,36 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
 def test_filesystem_store_factory(temp_dir) -> None:
     store = factory({"repo_dir": temp_dir})
     assert isinstance(store, FileSystemStore)
+
+
+def test_filesystem_store_no_metadata_without_hasher_name(temp_dir) -> None:
+    FileSystemStore(pathlib.Path(temp_dir))
+    metadata_path = pathlib.Path(temp_dir) / FileSystemStore.METADATA_FILENAME
+    assert not metadata_path.exists()
+
+
+def test_filesystem_store_writes_metadata_with_hasher_name(temp_dir) -> None:
+    FileSystemStore(pathlib.Path(temp_dir), hasher_name="sha256")
+    metadata_path = pathlib.Path(temp_dir) / FileSystemStore.METADATA_FILENAME
+    assert metadata_path.exists()
+    metadata = json.loads(metadata_path.read_text())
+    assert metadata["hasher"] == "sha256"
+    assert metadata["schema_version"] == 1
+
+
+def test_filesystem_store_clear_preserves_metadata(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir), hasher_name="sha256")
+    store.store_item(b"hash1", b"item1")
+    store.clear()
+    metadata_path = pathlib.Path(temp_dir) / FileSystemStore.METADATA_FILENAME
+    assert metadata_path.exists()
+    assert not store.stores(b"hash1")
+
+
+def test_filesystem_store_factory_writes_metadata(temp_dir) -> None:
+    store = factory({"repo_dir": temp_dir, "hasher_name": "md5"})
+    assert isinstance(store, FileSystemStore)
+    metadata_path = pathlib.Path(temp_dir) / FileSystemStore.METADATA_FILENAME
+    assert metadata_path.exists()
+    metadata = json.loads(metadata_path.read_text())
+    assert metadata["hasher"] == "md5"

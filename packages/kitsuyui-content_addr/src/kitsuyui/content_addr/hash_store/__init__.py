@@ -100,9 +100,7 @@ class HashStore:
     def _store_raw(self, hash_value: HashValue, item: RawItem) -> None:
         self.base_store.store_item(hash_value, item)
 
-    def _store_overwriting(
-        self, hash_value: HashValue, item: RawItem
-    ) -> None:
+    def _store_overwriting(self, hash_value: HashValue, item: RawItem) -> None:
         self._store_raw(hash_value, item)
 
     def _store_with_error_on_conflict(
@@ -175,7 +173,14 @@ def factory(
 ) -> HashStore:
     """Factory function for creating a HashStore instance."""
     hasher = hasher_factory(hasher_name, hasher_config)
-    base_store = store_factory(store_name, store_config)
+    effective_store_config: object
+    if store_name == "filesystem_store":
+        extended: dict[str, object] = dict(store_config or {})
+        extended["hasher_name"] = hasher_name
+        effective_store_config = extended
+    else:
+        effective_store_config = store_config
+    base_store = store_factory(store_name, effective_store_config)
     return HashStore(hasher=hasher, base_store=base_store)
 
 
