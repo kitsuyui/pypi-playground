@@ -51,3 +51,17 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
 def test_filesystem_store_factory(temp_dir) -> None:
     store = factory({"repo_dir": temp_dir})
     assert isinstance(store, FileSystemStore)
+
+
+def test_store_item_cleans_up_on_write_failure(temp_dir) -> None:
+    import unittest.mock as mock
+
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    hash_value = b"hashfail"
+
+    err = OSError("rename failed")
+    patch = mock.patch.object(pathlib.Path, "replace", side_effect=err)
+    with patch, pytest.raises(OSError):
+        store.store_item(hash_value, b"data")
+
+    assert not store.stores(hash_value)

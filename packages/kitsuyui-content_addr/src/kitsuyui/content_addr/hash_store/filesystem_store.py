@@ -20,8 +20,14 @@ class FileSystemStore(BaseStoreProtocol):
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         file_path = self.parent_dir / hash_value.hex()
-        with file_path.open("wb") as f:
-            f.write(item)
+        tmp_path = file_path.with_suffix(".tmp")
+        try:
+            with tmp_path.open("wb") as f:
+                f.write(item)
+            tmp_path.replace(file_path)
+        except BaseException:
+            tmp_path.unlink(missing_ok=True)
+            raise
 
     def stores(self, hash_value: HashValue) -> bool:
         file_path = self.parent_dir / hash_value.hex()
