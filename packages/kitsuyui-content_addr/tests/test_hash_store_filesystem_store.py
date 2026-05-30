@@ -51,3 +51,16 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
 def test_filesystem_store_factory(temp_dir) -> None:
     store = factory({"repo_dir": temp_dir})
     assert isinstance(store, FileSystemStore)
+
+
+def test_filesystem_store_empty_hash_value_raises(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    empty_hash = b""
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.store_item(empty_hash, b"data")
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.stores(empty_hash)
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.retrieve(empty_hash)
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.delete(empty_hash)
