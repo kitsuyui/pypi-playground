@@ -93,10 +93,18 @@ def test_hash_store_factory() -> None:
 
     with tempfile.TemporaryDirectory() as temp_dir:
         store2 = factory(
-            hasher_name="md5",
+            hasher_name="sha256",
             store_name="filesystem_store",
             store_config={"repo_dir": temp_dir},
         )
         assert not store2.stores(hash_value)
         hash_value2 = store2.store(item)
         assert store2.stores(hash_value2)
+
+
+def test_hash_store_factory_rejects_md5() -> None:
+    with pytest.raises(ValueError, match="Hasher 'md5' is not registered"):
+        factory(
+            hasher_name="md5",
+            store_name="dict_store",
+        )
