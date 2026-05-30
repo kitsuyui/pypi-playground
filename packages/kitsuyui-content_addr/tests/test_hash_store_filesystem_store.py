@@ -85,3 +85,18 @@ def test_filesystem_store_factory_writes_metadata(temp_dir) -> None:
     assert metadata_path.exists()
     metadata = json.loads(metadata_path.read_text())
     assert metadata["hasher"] == "md5"
+
+
+def test_filesystem_store_destroy_with_metadata(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir), hasher_name="sha256")
+    store.store_item(b"hash1", b"item1")
+    store.destroy()
+    assert not pathlib.Path(temp_dir).exists()
+
+
+def test_filesystem_store_destroy_without_metadata(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    store.store_item(b"hash1", b"item1")
+    store.clear()
+    store.destroy()
+    assert not pathlib.Path(temp_dir).exists()
