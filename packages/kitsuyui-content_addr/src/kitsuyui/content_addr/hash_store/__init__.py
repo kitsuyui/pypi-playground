@@ -100,9 +100,7 @@ class HashStore:
     def _store_raw(self, hash_value: HashValue, item: RawItem) -> None:
         self.base_store.store_item(hash_value, item)
 
-    def _store_overwriting(
-        self, hash_value: HashValue, item: RawItem
-    ) -> None:
+    def _store_overwriting(self, hash_value: HashValue, item: RawItem) -> None:
         self._store_raw(hash_value, item)
 
     def _store_with_error_on_conflict(

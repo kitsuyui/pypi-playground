@@ -51,3 +51,27 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
 def test_filesystem_store_factory(temp_dir) -> None:
     store = factory({"repo_dir": temp_dir})
     assert isinstance(store, FileSystemStore)
+
+
+def test_filesystem_store_clear_with_subdirectory(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    # Create a regular file and a subdirectory inside the store dir.
+    (pathlib.Path(temp_dir) / "somefile").write_bytes(b"data")
+    subdir = pathlib.Path(temp_dir) / "subdir"
+    subdir.mkdir()
+    (subdir / "nested").write_bytes(b"nested")
+
+    # clear() must remove both the file and the subdirectory.
+    store.clear()
+    assert list(pathlib.Path(temp_dir).iterdir()) == []
+
+
+def test_filesystem_store_destroy_with_subdirectory(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    subdir = pathlib.Path(temp_dir) / "subdir"
+    subdir.mkdir()
+    (subdir / "nested").write_bytes(b"nested")
+
+    # destroy() must succeed even when subdirectories exist.
+    store.destroy()
+    assert not pathlib.Path(temp_dir).exists()

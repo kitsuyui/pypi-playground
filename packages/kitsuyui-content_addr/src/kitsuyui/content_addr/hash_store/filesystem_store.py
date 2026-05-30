@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pathlib
+import shutil
 from typing import cast
 
 from ..types import HashValue, RawItem
@@ -37,9 +38,11 @@ class FileSystemStore(BaseStoreProtocol):
         file_path.unlink()
 
     def clear(self) -> None:
-        for file_path in self.parent_dir.iterdir():
-            if file_path.is_file():
-                file_path.unlink()
+        for path in self.parent_dir.iterdir():
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
 
     def destroy(self) -> None:
         self.clear()
