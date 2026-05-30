@@ -2,7 +2,10 @@ import tempfile
 
 import pytest
 
-from kitsuyui.content_addr.exceptions import ItemAlreadyExists
+from kitsuyui.content_addr.exceptions import (
+    CorruptedItemError,
+    ItemAlreadyExists,
+)
 from kitsuyui.content_addr.hash_store import HashStore, factory
 from kitsuyui.content_addr.hash_store.dict_store import DictStore
 from kitsuyui.content_addr.hasher import SHA256Hasher
@@ -42,7 +45,7 @@ def test_hash_store() -> None:
     # break the item in the store to test validation failure
     store._store_raw(hash_value, RawItem(b"corrupted item"))
     assert not store.verify(hash_value, action="ignore")
-    with pytest.raises(ValueError):
+    with pytest.raises(CorruptedItemError):
         store.verify(hash_value, action="error")
     with pytest.raises(ValueError):
         store.verify(hash_value, action="unexpected")  # type: ignore[arg-type]

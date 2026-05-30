@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 
+from kitsuyui.content_addr.exceptions import ItemNotFound
 from kitsuyui.content_addr.hash_store.filesystem_store import (
     _METADATA_FILENAME,
     FORMAT_VERSION,
@@ -116,3 +117,12 @@ def test_filesystem_store_factory_with_hasher_algorithm(temp_dir) -> None:
     with metadata_path.open() as f:
         metadata = json.load(f)
     assert metadata["hasher_algorithm"] == "sha256"
+
+
+def test_filesystem_store_retrieve_missing_raises_item_not_found(
+    temp_dir,
+) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    missing_hash = b"does_not_exist"
+    with pytest.raises(ItemNotFound):
+        store.retrieve(missing_hash)
