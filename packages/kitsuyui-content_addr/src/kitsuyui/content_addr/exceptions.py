@@ -20,3 +20,7 @@ class RetrievalError(HashStoreError, IOError):
 
 class CorruptedItemError(HashStoreError):
     """Raised when a stored item is found to be corrupted."""
+
+
+class StoreDestroyedError(HashStoreError):
+    """Raised when an operation is attempted on a destroyed store."""
