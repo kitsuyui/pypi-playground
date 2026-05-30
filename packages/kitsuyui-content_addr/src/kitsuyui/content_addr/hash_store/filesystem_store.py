@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import pathlib
+import tempfile
 from typing import cast
 
 from ..exceptions import ItemNotFound, RetrievalError
@@ -91,8 +93,14 @@ class FileSystemStore(BaseStoreProtocol):
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         file_path = self.parent_dir / hash_value.hex()
-        with file_path.open("wb") as f:
-            f.write(item)
+        with tempfile.NamedTemporaryFile(
+            dir=self.parent_dir, delete=False, suffix=".tmp"
+        ) as tmp:
+            tmp.write(item)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+            tmp_path = pathlib.Path(tmp.name)
+        tmp_path.replace(file_path)
 
     def stores(self, hash_value: HashValue) -> bool:
         file_path = self.parent_dir / hash_value.hex()
