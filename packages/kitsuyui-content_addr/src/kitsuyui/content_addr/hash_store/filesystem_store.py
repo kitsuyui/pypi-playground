@@ -6,7 +6,7 @@ import pathlib
 import tempfile
 from typing import cast
 
-from ..exceptions import ItemNotFound, RetrievalError
+from ..exceptions import ItemNotFound, RetrievalError, StoreDestroyedError
 from ..types import HashValue, RawItem
 from .base_store import BaseStoreProtocol, register_store_factory
 
@@ -30,6 +30,11 @@ class FileSystemStore(BaseStoreProtocol):
         self.parent_dir = pathlib.Path(parent_dir).resolve()
         self.parent_dir.mkdir(parents=True, exist_ok=True)
         self._init_or_validate_metadata(hasher_algorithm)
+        self._destroyed = False
+
+    def _check_not_destroyed(self) -> None:
+        if self._destroyed:
+            raise StoreDestroyedError("store has been destroyed")
 
     def _metadata_path(self) -> pathlib.Path:
         return self.parent_dir / _METADATA_FILENAME
@@ -97,6 +102,7 @@ class FileSystemStore(BaseStoreProtocol):
         return cls(pathlib.Path(parent_dir), hasher_algorithm=hasher_algorithm)
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
+        self._check_not_destroyed()
         file_path = self.parent_dir / hash_value.hex()
         with tempfile.NamedTemporaryFile(
             dir=self.parent_dir, delete=False, suffix=".tmp"
@@ -108,10 +114,12 @@ class FileSystemStore(BaseStoreProtocol):
         tmp_path.replace(file_path)
 
     def stores(self, hash_value: HashValue) -> bool:
+        self._check_not_destroyed()
         file_path = self.parent_dir / hash_value.hex()
         return file_path.exists()
 
     def retrieve(self, hash_value: HashValue) -> RawItem:
+        self._check_not_destroyed()
         file_path = self.parent_dir / hash_value.hex()
         try:
             with file_path.open("rb") as f:
@@ -126,13 +134,15 @@ class FileSystemStore(BaseStoreProtocol):
             ) from e
 
     def delete(self, hash_value: HashValue) -> None:
+        self._check_not_destroyed()
         file_path = self.parent_dir / hash_value.hex()
         file_path.unlink()
 
     def clear(self) -> None:
+        self._check_not_destroyed()
         # Snapshot the listing before iterating so behaviour is deterministic:
         # files that exist at this point are deleted; files written after the
-        # snapshot are not.  Not safe for concurrent use without external
+        # snapshot are not. Not safe for concurrent use without external
         # coordination.
         files = list(self.parent_dir.iterdir())
         for file_path in files:
@@ -140,9 +150,11 @@ class FileSystemStore(BaseStoreProtocol):
                 file_path.unlink(missing_ok=True)
 
     def destroy(self) -> None:
+        self._check_not_destroyed()
         self.clear()
         self._metadata_path().unlink(missing_ok=True)
         self.parent_dir.rmdir()
+        self._destroyed = True
 
 
 @register_store_factory("filesystem_store")
