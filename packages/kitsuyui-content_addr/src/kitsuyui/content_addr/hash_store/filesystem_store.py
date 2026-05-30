@@ -4,6 +4,7 @@ import json
 import pathlib
 from typing import cast
 
+from ..exceptions import ItemNotFound
 from ..types import HashValue, RawItem
 from .base_store import BaseStoreProtocol, register_store_factory
 
@@ -99,8 +100,13 @@ class FileSystemStore(BaseStoreProtocol):
 
     def retrieve(self, hash_value: HashValue) -> RawItem:
         file_path = self.parent_dir / hash_value.hex()
-        with file_path.open("rb") as f:
-            return RawItem(f.read())
+        try:
+            with file_path.open("rb") as f:
+                return RawItem(f.read())
+        except FileNotFoundError:
+            raise ItemNotFound(
+                f"Item with hash {hash_value.hex()} not found."
+            ) from None
 
     def delete(self, hash_value: HashValue) -> None:
         file_path = self.parent_dir / hash_value.hex()

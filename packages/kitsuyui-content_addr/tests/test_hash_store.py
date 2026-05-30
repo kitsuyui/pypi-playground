@@ -2,7 +2,7 @@ import tempfile
 
 import pytest
 
-from kitsuyui.content_addr.exceptions import ItemAlreadyExists
+from kitsuyui.content_addr.exceptions import ItemAlreadyExists, ItemNotFound
 from kitsuyui.content_addr.hash_store import HashStore, factory
 from kitsuyui.content_addr.hash_store.dict_store import DictStore
 from kitsuyui.content_addr.hasher import SHA256Hasher
@@ -77,6 +77,15 @@ def test_store_or_raise() -> None:
     # Second call must raise ItemAlreadyExists.
     with pytest.raises(ItemAlreadyExists):
         store.store_or_raise(item)
+
+
+def test_hash_store_is_valid_missing_item_raises_item_not_found() -> None:
+    store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
+    missing_hash = b"\x00" * 32
+    with pytest.raises(ItemNotFound):
+        store.is_valid_stored_item(missing_hash)
+    with pytest.raises(ItemNotFound):
+        store.verify(missing_hash)
 
 
 def test_hash_store_factory() -> None:
