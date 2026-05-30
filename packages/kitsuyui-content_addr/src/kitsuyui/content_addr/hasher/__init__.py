@@ -26,6 +26,7 @@ class SHA256Hasher(HasherProtocol):
 def generate_hasher(name: str) -> type[HasherProtocol]:
     if name.lower() in UNSAFE_HASH_ALGORITHMS:
         raise ValueError(f"Unsafe hash algorithm is not supported: {name}")
+    hashlib.new(name)
 
     class CustomHasher(HasherProtocol):
         def compute_hash(self, item: RawItem) -> HashValue:

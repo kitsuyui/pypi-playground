@@ -17,3 +17,6 @@ def test_sha256_hasher() -> None:
 def test_generate_hasher_rejects_md5() -> None:
     with pytest.raises(ValueError, match="Unsafe hash algorithm"):
         generate_hasher("md5")
+def test_generate_hasher_invalid_algorithm_raises_at_creation() -> None:
+    with pytest.raises(ValueError):
+        generate_hasher("invalid_algo")
