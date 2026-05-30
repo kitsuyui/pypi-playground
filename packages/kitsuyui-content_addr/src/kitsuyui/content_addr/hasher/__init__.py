@@ -38,6 +38,8 @@ def __register_hasher(
     name: str, hasher_factory: Callable[..., HasherProtocol]
 ) -> None:
     """Register a hasher class with the given name."""
+    if name in HASHER_REGISTRY:
+        raise ValueError(f"Hasher '{name}' is already registered.")
     HASHER_REGISTRY[name] = hasher_factory
 
 
