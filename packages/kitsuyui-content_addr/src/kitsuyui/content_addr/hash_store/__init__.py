@@ -61,9 +61,7 @@ class HashStore:
         self.delete(hash_value)
 
     def _raise_invalid_stored_item(self, hash_value: HashValue) -> None:
-        raise ValueError(
-            f"Stored item with hash {hash_value.hex()} is invalid."
-        )
+        raise ValueError("Stored item is invalid.")
 
     def _ignore_invalid_stored_item(self, _hash_value: HashValue) -> None:
         return None
@@ -107,9 +105,7 @@ class HashStore:
         self, hash_value: HashValue, item: RawItem
     ) -> None:
         if self.stores(hash_value):
-            raise ItemAlreadyExists(
-                f"Item with hash {hash_value.hex()} already exists."
-            )
+            raise ItemAlreadyExists("Item already exists.")
         self._store_raw(hash_value, item)
 
     def _store_ignoring_conflicts(
