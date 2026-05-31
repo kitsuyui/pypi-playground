@@ -184,9 +184,7 @@ def register_store_factory(
     return decorator
 
 
-def factory(
-    name: str, *args: object, **kwargs: object
-) -> BaseStoreProtocol:
+def factory(name: str, *args: object, **kwargs: object) -> BaseStoreProtocol:
     """Factory function for creating a store instance by name."""
     if name not in STORE_FACTORIES:
         raise ValueError(f"Store '{name}' is not registered.")
