@@ -7,6 +7,7 @@ from kitsuyui.content_addr.hash_store.filesystem_store import (
     FileSystemStore,
     factory,
 )
+from kitsuyui.content_addr.types import HashValue, RawItem
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -17,8 +18,8 @@ def temp_dir():
 
 def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
-    hash_value = b"hash1"
-    item = b"item1"
+    hash_value = HashValue(b"hash1")
+    item = RawItem(b"item1")
 
     store.store_item(hash_value, item)
     assert store.stores(hash_value)
@@ -26,8 +27,8 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
     assert retrieved_item == item
 
     # second item
-    hash_value2 = b"hash2"
-    item2 = b"item2"
+    hash_value2 = HashValue(b"hash2")
+    item2 = RawItem(b"item2")
     store.store_item(hash_value2, item2)
     assert store.stores(hash_value2)
     retrieved_item2 = store.retrieve(hash_value2)

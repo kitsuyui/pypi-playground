@@ -8,7 +8,7 @@ class DictStore(BaseStoreProtocol):
     """
 
     def __init__(self) -> None:
-        self._store: dict[bytes, bytes] = {}
+        self._store: dict[HashValue, RawItem] = {}
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         self._store[hash_value] = item

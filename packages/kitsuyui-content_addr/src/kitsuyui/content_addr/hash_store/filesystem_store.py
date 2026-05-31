@@ -30,7 +30,7 @@ class FileSystemStore(BaseStoreProtocol):
     def retrieve(self, hash_value: HashValue) -> RawItem:
         file_path = self.parent_dir / hash_value.hex()
         with file_path.open("rb") as f:
-            return f.read()
+            return RawItem(f.read())
 
     def delete(self, hash_value: HashValue) -> None:
         file_path = self.parent_dir / hash_value.hex()

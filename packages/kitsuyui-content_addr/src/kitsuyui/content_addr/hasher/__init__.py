@@ -26,7 +26,7 @@ def generate_hasher(name: str) -> type[HasherProtocol]:
         def compute_hash(self, item: RawItem) -> HashValue:
             raw_hasher = hashlib.new(name)
             raw_hasher.update(item)
-            return raw_hasher.digest()
+            return HashValue(raw_hasher.digest())
 
     return CustomHasher
 
