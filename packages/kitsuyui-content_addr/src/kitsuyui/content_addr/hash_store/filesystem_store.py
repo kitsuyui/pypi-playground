@@ -20,7 +20,7 @@ class FileSystemStore(BaseStoreProtocol):
         parent_dir: pathlib.Path,
         hasher_algorithm: str | None = None,
     ) -> None:
-        self.parent_dir = pathlib.Path(parent_dir)
+        self.parent_dir = pathlib.Path(parent_dir).resolve()
         self.parent_dir.mkdir(parents=True, exist_ok=True)
         self._init_or_validate_metadata(hasher_algorithm)
 
