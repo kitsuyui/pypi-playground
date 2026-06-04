@@ -148,21 +148,18 @@ class HashStore:
         return hash_value
 
     def store_if_not_exists(self, item: RawItem) -> HashValue:
-        """Store the item only if it does not already exist."""
-        hash_value = self.compute_hash(item)
-        if not self.stores(hash_value):
-            self._store_raw(hash_value, item)
-        return hash_value
+        """Store the item only if it does not already exist.
+
+        Equivalent to store(item, conflicts="ignore").
+        """
+        return self.store(item, conflicts="ignore")
 
     def store_or_raise(self, item: RawItem) -> HashValue:
-        """Store the item, raising ItemAlreadyExists if it already exists."""
-        hash_value = self.compute_hash(item)
-        if self.stores(hash_value):
-            raise ItemAlreadyExists(
-                f"Item with hash {hash_value.hex()} already exists."
-            )
-        self._store_raw(hash_value, item)
-        return hash_value
+        """Store the item, raising ItemAlreadyExists if it already exists.
+
+        Equivalent to store(item, conflicts="error").
+        """
+        return self.store(item, conflicts="error")
 
 
 def factory(
