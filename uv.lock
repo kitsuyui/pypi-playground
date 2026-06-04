@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.10"
 
 [options]
-exclude-newer = "2026-04-02T20:14:37.887435Z"
+exclude-newer = "2026-05-30T11:11:32.10868Z"
 exclude-newer-span = "P2D"
 
 [manifest]
@@ -158,14 +158,14 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mypy" },
-    { name = "poethepoet" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
-    { name = "setuptools-scm" },
-    { name = "ty", specifier = ">=0.0.1a32" },
+    { name = "mypy", specifier = ">=1,<2" },
+    { name = "poethepoet", specifier = ">=0.41,<1" },
+    { name = "pytest", specifier = ">=9,<10" },
+    { name = "pytest-cov", specifier = ">=7,<8" },
+    { name = "pytest-mock", specifier = ">=3,<4" },
+    { name = "ruff", specifier = ">=0.15,<1" },
+    { name = "setuptools-scm", specifier = ">=9,<10" },
+    { name = "ty", specifier = ">=0.0.1a32,<0.1" },
 ]
 
 [[package]]
