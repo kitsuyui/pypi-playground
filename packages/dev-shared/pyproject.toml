@@ -8,12 +8,12 @@ classifiers = [
 requires-python = ">=3.10"
 
 dependencies = [
-    "pytest",
-    "pytest-mock",
-    "pytest-cov",
-    "poethepoet",
-    "setuptools-scm",
-    "ruff",
-    "mypy",
-    "ty>=0.0.1a32",
+    "pytest>=9,<10",
+    "pytest-mock>=3,<4",
+    "pytest-cov>=7,<8",
+    "poethepoet>=0.41,<1",
+    "setuptools-scm>=9,<10",
+    "ruff>=0.15,<1",
+    "mypy>=1,<2",
+    "ty>=0.0.1a32,<0.1",
 ]

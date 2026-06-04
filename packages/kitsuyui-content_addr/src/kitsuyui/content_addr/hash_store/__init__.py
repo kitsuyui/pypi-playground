@@ -15,7 +15,7 @@ VerifyAction = Literal["delete", "error", "ignore"]
 StoreConfig = dict[str, str | None]
 
 
-@dataclass
+@dataclass(frozen=True)
 class HashStore:
     hasher: HasherProtocol
     base_store: BaseStoreProtocol
@@ -100,9 +100,7 @@ class HashStore:
     def _store_raw(self, hash_value: HashValue, item: RawItem) -> None:
         self.base_store.store_item(hash_value, item)
 
-    def _store_overwriting(
-        self, hash_value: HashValue, item: RawItem
-    ) -> None:
+    def _store_overwriting(self, hash_value: HashValue, item: RawItem) -> None:
         self._store_raw(hash_value, item)
 
     def _store_with_error_on_conflict(
@@ -150,21 +148,18 @@ class HashStore:
         return hash_value
 
     def store_if_not_exists(self, item: RawItem) -> HashValue:
-        """Store the item only if it does not already exist."""
-        hash_value = self.compute_hash(item)
-        if not self.stores(hash_value):
-            self._store_raw(hash_value, item)
-        return hash_value
+        """Store the item only if it does not already exist.
+
+        Equivalent to store(item, conflicts="ignore").
+        """
+        return self.store(item, conflicts="ignore")
 
     def store_or_raise(self, item: RawItem) -> HashValue:
-        """Store the item, raising ItemAlreadyExists if it already exists."""
-        hash_value = self.compute_hash(item)
-        if self.stores(hash_value):
-            raise ItemAlreadyExists(
-                f"Item with hash {hash_value.hex()} already exists."
-            )
-        self._store_raw(hash_value, item)
-        return hash_value
+        """Store the item, raising ItemAlreadyExists if it already exists.
+
+        Equivalent to store(item, conflicts="error").
+        """
+        return self.store(item, conflicts="error")
 
 
 def factory(
@@ -184,3 +179,8 @@ __all__ = [
     "ConflictAction",
     "HashStore",
 ]
+
+# Trigger @register_store_factory side-effects for built-in stores so that
+# HashStore.create(store_name="dict_store") works without explicit imports.
+from . import dict_store as _dict_store  # noqa: F401, E402
+from . import filesystem_store as _filesystem_store  # noqa: F401, E402
