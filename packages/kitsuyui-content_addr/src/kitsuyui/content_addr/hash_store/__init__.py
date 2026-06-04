@@ -179,3 +179,8 @@ __all__ = [
     "ConflictAction",
     "HashStore",
 ]
+
+# Trigger @register_store_factory side-effects for built-in stores so that
+# HashStore.create(store_name="dict_store") works without explicit imports.
+from . import dict_store as _dict_store  # noqa: F401, E402
+from . import filesystem_store as _filesystem_store  # noqa: F401, E402
