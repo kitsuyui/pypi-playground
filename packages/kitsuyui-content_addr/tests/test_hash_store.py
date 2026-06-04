@@ -63,7 +63,7 @@ def test_hash_store() -> None:
 def test_store_if_not_exists() -> None:
     """store_if_not_exists is equivalent to store(conflicts="ignore")."""
     store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
-    item = b"alias ignore item"
+    item = RawItem(b"alias ignore item")
     hash_value = store.store_if_not_exists(item)
     assert store.stores(hash_value)
     # Second call must not raise and must return the same hash.
@@ -74,7 +74,7 @@ def test_store_if_not_exists() -> None:
 def test_store_or_raise() -> None:
     """store_or_raise is equivalent to store(conflicts="error")."""
     store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
-    item = b"alias error item"
+    item = RawItem(b"alias error item")
     hash_value = store.store_or_raise(item)
     assert store.stores(hash_value)
     # Second call must raise ItemAlreadyExists.

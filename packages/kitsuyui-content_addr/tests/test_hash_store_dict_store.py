@@ -45,6 +45,6 @@ def test_dict_store_factory() -> None:
 
 def test_dict_store_retrieve_missing_raises_item_not_found() -> None:
     store = DictStore()
-    missing_hash = b"does_not_exist"
+    missing_hash = HashValue(b"does_not_exist")
     with pytest.raises(ItemNotFound):
         store.retrieve(missing_hash)
