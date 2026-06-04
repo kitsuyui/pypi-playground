@@ -1,9 +1,12 @@
+import json
 import pathlib
 import tempfile
 
 import pytest
 
 from kitsuyui.content_addr.hash_store.filesystem_store import (
+    _METADATA_FILENAME,
+    FORMAT_VERSION,
     FileSystemStore,
     factory,
 )
@@ -51,3 +54,64 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
 def test_filesystem_store_factory(temp_dir) -> None:
     store = factory({"repo_dir": temp_dir})
     assert isinstance(store, FileSystemStore)
+
+
+def test_filesystem_store_creates_metadata(temp_dir) -> None:
+    FileSystemStore(pathlib.Path(temp_dir))
+    metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
+    assert metadata_path.exists()
+    with metadata_path.open() as f:
+        metadata = json.load(f)
+    assert metadata["format_version"] == FORMAT_VERSION
+
+
+def test_filesystem_store_records_hasher_algorithm(temp_dir) -> None:
+    FileSystemStore(pathlib.Path(temp_dir), hasher_algorithm="sha256")
+    metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
+    with metadata_path.open() as f:
+        metadata = json.load(f)
+    assert metadata["hasher_algorithm"] == "sha256"
+
+
+def test_filesystem_store_algorithm_mismatch_raises(temp_dir) -> None:
+    FileSystemStore(pathlib.Path(temp_dir), hasher_algorithm="sha256")
+    with pytest.raises(ValueError, match="algorithm mismatch"):
+        FileSystemStore(pathlib.Path(temp_dir), hasher_algorithm="sha3_256")
+
+
+def test_filesystem_store_no_algorithm_on_reopen_ok(temp_dir) -> None:
+    FileSystemStore(pathlib.Path(temp_dir), hasher_algorithm="sha256")
+    # reopening without specifying algorithm is allowed
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    assert isinstance(store, FileSystemStore)
+
+
+def test_filesystem_store_format_version_mismatch_raises(temp_dir) -> None:
+    metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
+    with metadata_path.open("w") as f:
+        json.dump({"format_version": 999}, f)
+    with pytest.raises(ValueError, match="Incompatible format version"):
+        FileSystemStore(pathlib.Path(temp_dir))
+
+
+def test_filesystem_store_clear_preserves_metadata(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    store.store_item(b"hash1", b"item1")
+    store.clear()
+    metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
+    assert metadata_path.exists()
+
+
+def test_filesystem_store_destroy_removes_metadata(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    store.destroy()
+    assert not pathlib.Path(temp_dir).exists()
+
+
+def test_filesystem_store_factory_with_hasher_algorithm(temp_dir) -> None:
+    store = factory({"repo_dir": temp_dir, "hasher_algorithm": "sha256"})
+    assert isinstance(store, FileSystemStore)
+    metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
+    with metadata_path.open() as f:
+        metadata = json.load(f)
+    assert metadata["hasher_algorithm"] == "sha256"
