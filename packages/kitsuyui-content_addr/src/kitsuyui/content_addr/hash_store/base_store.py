@@ -18,7 +18,7 @@ class BaseStoreProtocol(Protocol):
     """
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
-        """Store the given item and return its hash value."""
+        """Store the given item for the supplied hash value."""
 
     def stores(self, hash_value: HashValue) -> bool:
         """Return whether the item with the given hash value is stored."""
@@ -45,7 +45,7 @@ class AsyncBaseStoreProtocol(Protocol):
     """
 
     async def store_item(self, hash_value: HashValue, item: RawItem) -> None:
-        """Store the given item and return its hash value."""
+        """Store the given item for the supplied hash value."""
 
     async def stores(self, hash_value: HashValue) -> bool:
         """Return whether the item with the given hash value is stored."""
