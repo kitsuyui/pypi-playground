@@ -1,10 +1,11 @@
 from kitsuyui.content_addr.hash_store.dict_store import DictStore, factory
+from kitsuyui.content_addr.types import HashValue, RawItem
 
 
 def test_dict_store_store_and_retrieve() -> None:
     store = DictStore()
-    hash_value = b"hash1"
-    item = b"item1"
+    hash_value = HashValue(b"hash1")
+    item = RawItem(b"item1")
 
     store.store_item(hash_value, item)
     assert store.stores(hash_value)
@@ -12,8 +13,8 @@ def test_dict_store_store_and_retrieve() -> None:
     assert retrieved_item == item
 
     # second item
-    hash_value2 = b"hash2"
-    item2 = b"item2"
+    hash_value2 = HashValue(b"hash2")
+    item2 = RawItem(b"item2")
     store.store_item(hash_value2, item2)
     assert store.stores(hash_value2)
     retrieved_item2 = store.retrieve(hash_value2)
