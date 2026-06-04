@@ -157,6 +157,8 @@ def __register_store(
     name: str, factory: Callable[..., BaseStoreProtocol]
 ) -> None:
     """Register a store class with the given name."""
+    if name in STORE_FACTORIES:
+        raise ValueError(f"Store '{name}' is already registered.")
     STORE_FACTORIES[name] = factory
 
 
