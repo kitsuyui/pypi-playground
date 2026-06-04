@@ -19,7 +19,7 @@ import abc
 from ._version import __version__
 
 
-class Animal:
+class Animal(abc.ABC):
     def __init__(self, name: str) -> None:
         self.name = name
 

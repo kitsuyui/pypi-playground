@@ -4,13 +4,14 @@ from kitsuyui.content_addr.hash_store.async_dict_store import AsyncDictStore
 from kitsuyui.content_addr.hash_store.base_store import (
     wrap_async_store_as_sync,
 )
+from kitsuyui.content_addr.types import HashValue, RawItem
 
 
 def test_async_dict_store_store_and_retrieve() -> None:
     DictStore2 = wrap_async_store_as_sync("DictStore2", AsyncDictStore)
     store = DictStore2()
-    hash_value = b"hash1"
-    item = b"item1"
+    hash_value = HashValue(b"hash1")
+    item = RawItem(b"item1")
 
     store.store_item(hash_value, item)
     assert store.stores(hash_value)
@@ -18,8 +19,8 @@ def test_async_dict_store_store_and_retrieve() -> None:
     assert retrieved_item == item
 
     # second item
-    hash_value2 = b"hash2"
-    item2 = b"item2"
+    hash_value2 = HashValue(b"hash2")
+    item2 = RawItem(b"item2")
     store.store_item(hash_value2, item2)
     assert store.stores(hash_value2)
     retrieved_item2 = store.retrieve(hash_value2)
@@ -43,8 +44,8 @@ def test_async_dict_store_store_and_retrieve() -> None:
 async def _store_and_retrieve_inside_running_loop() -> None:
     DictStore2 = wrap_async_store_as_sync("DictStore2", AsyncDictStore)
     store = DictStore2()
-    hash_value = b"hash1"
-    item = b"item1"
+    hash_value = HashValue(b"hash1")
+    item = RawItem(b"item1")
 
     store.store_item(hash_value, item)
 
