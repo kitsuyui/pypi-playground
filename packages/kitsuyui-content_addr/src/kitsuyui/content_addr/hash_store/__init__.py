@@ -60,7 +60,7 @@ class HashStore:
     def _delete_invalid_stored_item(self, hash_value: HashValue) -> None:
         self.delete(hash_value)
 
-    def _raise_invalid_stored_item(self, hash_value: HashValue) -> None:
+    def _raise_invalid_stored_item(self, _hash_value: HashValue) -> None:
         raise ValueError("Stored item is invalid.")
 
     def _ignore_invalid_stored_item(self, _hash_value: HashValue) -> None:
