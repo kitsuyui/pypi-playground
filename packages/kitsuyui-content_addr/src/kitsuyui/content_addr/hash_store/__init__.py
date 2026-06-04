@@ -15,7 +15,7 @@ VerifyAction = Literal["delete", "error", "ignore"]
 StoreConfig = dict[str, str | None]
 
 
-@dataclass
+@dataclass(frozen=True)
 class HashStore:
     hasher: HasherProtocol
     base_store: BaseStoreProtocol
