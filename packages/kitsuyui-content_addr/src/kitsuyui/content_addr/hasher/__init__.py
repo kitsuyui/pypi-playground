@@ -26,7 +26,7 @@ def generate_hasher(name: str) -> type[HasherProtocol]:
         def compute_hash(self, item: RawItem) -> HashValue:
             raw_hasher = hashlib.new(name)
             raw_hasher.update(item)
-            return raw_hasher.digest()
+            return HashValue(raw_hasher.digest())
 
     return CustomHasher
 
@@ -38,6 +38,8 @@ def __register_hasher(
     name: str, hasher_factory: Callable[..., HasherProtocol]
 ) -> None:
     """Register a hasher class with the given name."""
+    if name in HASHER_REGISTRY:
+        raise ValueError(f"Hasher '{name}' is already registered.")
     HASHER_REGISTRY[name] = hasher_factory
 
 
