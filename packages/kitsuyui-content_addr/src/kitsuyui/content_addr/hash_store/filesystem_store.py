@@ -140,6 +140,7 @@ class FileSystemStore(BaseStoreProtocol):
 
     def delete(self, hash_value: HashValue) -> None:
         self._check_not_destroyed()
+        file_path = self._file_path(hash_value)
         file_path.unlink()
 
     def clear(self) -> None:
