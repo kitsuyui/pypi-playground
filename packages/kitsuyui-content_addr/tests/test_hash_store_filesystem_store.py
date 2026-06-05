@@ -119,6 +119,32 @@ def test_filesystem_store_factory_with_hasher_algorithm(temp_dir) -> None:
     assert metadata["hasher_algorithm"] == "sha256"
 
 
+def test_filesystem_store_clear_with_subdirectory(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    # Create a regular file and a subdirectory inside the store dir.
+    (pathlib.Path(temp_dir) / "somefile").write_bytes(b"data")
+    subdir = pathlib.Path(temp_dir) / "subdir"
+    subdir.mkdir()
+    (subdir / "nested").write_bytes(b"nested")
+
+    # clear() must remove both the file and the subdirectory, while
+    # preserving the store metadata file.
+    store.clear()
+    remaining = sorted(p.name for p in pathlib.Path(temp_dir).iterdir())
+    assert remaining == [_METADATA_FILENAME]
+
+
+def test_filesystem_store_destroy_with_subdirectory(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    subdir = pathlib.Path(temp_dir) / "subdir"
+    subdir.mkdir()
+    (subdir / "nested").write_bytes(b"nested")
+
+    # destroy() must succeed even when subdirectories exist.
+    store.destroy()
+    assert not pathlib.Path(temp_dir).exists()
+
+
 def test_filesystem_store_retrieve_missing_raises_item_not_found(
     temp_dir,
 ) -> None:
