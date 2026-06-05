@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from ..exceptions import ItemAlreadyExists
+from ..exceptions import CorruptedItemError, ItemAlreadyExists
 from ..hasher import factory as hasher_factory
 from ..hasher.types import HasherProtocol
 from ..types import HashValue, RawItem
@@ -61,8 +61,8 @@ class HashStore:
         self.delete(hash_value)
 
     def _raise_invalid_stored_item(self, hash_value: HashValue) -> None:
-        raise ValueError(
-            f"Stored item with hash {hash_value.hex()} is invalid."
+        raise CorruptedItemError(
+            f"Stored item with hash {hash_value.hex()} is corrupted."
         )
 
     def _ignore_invalid_stored_item(self, _hash_value: HashValue) -> None:
