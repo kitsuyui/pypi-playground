@@ -89,17 +89,22 @@ class FileSystemStore(BaseStoreProtocol):
     ) -> FileSystemStore:
         return cls(pathlib.Path(parent_dir), hasher_algorithm=hasher_algorithm)
 
+    def _file_path(self, hash_value: HashValue) -> pathlib.Path:
+        if not hash_value:
+            raise ValueError("hash_value must not be empty")
+        return self.parent_dir / hash_value.hex()
+
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         with file_path.open("wb") as f:
             f.write(item)
 
     def stores(self, hash_value: HashValue) -> bool:
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         return file_path.exists()
 
     def retrieve(self, hash_value: HashValue) -> RawItem:
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         try:
             with file_path.open("rb") as f:
                 return RawItem(f.read())
@@ -113,7 +118,7 @@ class FileSystemStore(BaseStoreProtocol):
             ) from e
 
     def delete(self, hash_value: HashValue) -> None:
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         file_path.unlink()
 
     def clear(self) -> None:

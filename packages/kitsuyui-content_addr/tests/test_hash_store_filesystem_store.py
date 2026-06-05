@@ -58,6 +58,19 @@ def test_filesystem_store_factory(temp_dir) -> None:
     assert isinstance(store, FileSystemStore)
 
 
+def test_filesystem_store_empty_hash_value_raises(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    empty_hash = HashValue(b"")
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.store_item(empty_hash, RawItem(b"data"))
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.stores(empty_hash)
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.retrieve(empty_hash)
+    with pytest.raises(ValueError, match="hash_value must not be empty"):
+        store.delete(empty_hash)
+
+
 def test_filesystem_store_creates_metadata(temp_dir) -> None:
     FileSystemStore(pathlib.Path(temp_dir))
     metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
