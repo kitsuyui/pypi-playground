@@ -20,8 +20,14 @@ class FileSystemStore(BaseStoreProtocol):
         self.parent_dir.mkdir(parents=True, exist_ok=True)
         if hasher_name is not None:
             metadata_path = self.parent_dir / self.METADATA_FILENAME
-            with metadata_path.open("w") as f:
-                json.dump({"schema_version": 1, "hasher": hasher_name}, f)
+            tmp_path = metadata_path.with_name(metadata_path.name + ".tmp")
+            try:
+                with tmp_path.open("w") as f:
+                    json.dump({"schema_version": 1, "hasher": hasher_name}, f)
+                tmp_path.replace(metadata_path)
+            except Exception:
+                tmp_path.unlink(missing_ok=True)
+                raise
 
     @classmethod
     def create(

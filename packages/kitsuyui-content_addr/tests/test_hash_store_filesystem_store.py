@@ -100,3 +100,29 @@ def test_filesystem_store_destroy_without_metadata(temp_dir) -> None:
     store.clear()
     store.destroy()
     assert not pathlib.Path(temp_dir).exists()
+
+
+def test_filesystem_store_metadata_cleanup_on_write_failure(
+    temp_dir, monkeypatch
+) -> None:
+    import json as json_module
+
+    original_dump = json_module.dump
+
+    def failing_dump(*_args, **_kwargs):
+        raise OSError("simulated disk full")
+
+    monkeypatch.setattr(json_module, "dump", failing_dump)
+
+    with pytest.raises(OSError, match="simulated disk full"):
+        FileSystemStore(pathlib.Path(temp_dir), hasher_name="sha256")
+
+    metadata_path = pathlib.Path(temp_dir) / FileSystemStore.METADATA_FILENAME
+    tmp_path = metadata_path.with_name(metadata_path.name + ".tmp")
+    assert not metadata_path.exists()
+    assert not tmp_path.exists()
+
+    monkeypatch.setattr(json_module, "dump", original_dump)
+    FileSystemStore(pathlib.Path(temp_dir), hasher_name="sha256")
+    assert metadata_path.exists()
+    assert json.loads(metadata_path.read_text())["hasher"] == "sha256"
