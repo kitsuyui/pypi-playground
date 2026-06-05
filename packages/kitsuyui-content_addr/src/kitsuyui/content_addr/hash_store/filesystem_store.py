@@ -4,7 +4,7 @@ import json
 import pathlib
 from typing import cast
 
-from ..exceptions import ItemNotFound
+from ..exceptions import ItemNotFound, RetrievalError
 from ..types import HashValue, RawItem
 from .base_store import BaseStoreProtocol, register_store_factory
 
@@ -107,6 +107,10 @@ class FileSystemStore(BaseStoreProtocol):
             raise ItemNotFound(
                 f"Item with hash {hash_value.hex()} not found."
             ) from None
+        except OSError as e:
+            raise RetrievalError(
+                f"IO error retrieving item with hash {hash_value.hex()}."
+            ) from e
 
     def delete(self, hash_value: HashValue) -> None:
         file_path = self.parent_dir / hash_value.hex()

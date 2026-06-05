@@ -98,7 +98,7 @@ def test_filesystem_store_format_version_mismatch_raises(temp_dir) -> None:
 
 def test_filesystem_store_clear_preserves_metadata(temp_dir) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
-    store.store_item(b"hash1", b"item1")
+    store.store_item(HashValue(b"hash1"), RawItem(b"item1"))
     store.clear()
     metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
     assert metadata_path.exists()
@@ -123,5 +123,6 @@ def test_filesystem_store_retrieve_missing_raises_item_not_found(
     temp_dir,
 ) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
+    missing_hash = HashValue(b"does_not_exist")
     with pytest.raises(ItemNotFound):
-        store.retrieve(b"nonexistent")
+        store.retrieve(missing_hash)

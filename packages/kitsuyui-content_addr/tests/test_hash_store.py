@@ -2,11 +2,15 @@ import tempfile
 
 import pytest
 
-from kitsuyui.content_addr.exceptions import ItemAlreadyExists, ItemNotFound
+from kitsuyui.content_addr.exceptions import (
+    CorruptedItemError,
+    ItemAlreadyExists,
+    ItemNotFound,
+)
 from kitsuyui.content_addr.hash_store import HashStore, factory
 from kitsuyui.content_addr.hash_store.dict_store import DictStore
 from kitsuyui.content_addr.hasher import SHA256Hasher
-from kitsuyui.content_addr.types import RawItem
+from kitsuyui.content_addr.types import HashValue, RawItem
 
 
 def test_example_usage() -> None:
@@ -42,7 +46,7 @@ def test_hash_store() -> None:
     # break the item in the store to test validation failure
     store._store_raw(hash_value, RawItem(b"corrupted item"))
     assert not store.verify(hash_value, action="ignore")
-    with pytest.raises(ValueError):
+    with pytest.raises(CorruptedItemError):
         store.verify(hash_value, action="error")
     with pytest.raises(ValueError):
         store.verify(hash_value, action="unexpected")  # type: ignore[arg-type]
@@ -60,7 +64,7 @@ def test_hash_store() -> None:
 def test_store_if_not_exists() -> None:
     """store_if_not_exists is equivalent to store(conflicts="ignore")."""
     store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
-    item = b"alias ignore item"
+    item = RawItem(b"alias ignore item")
     hash_value = store.store_if_not_exists(item)
     assert store.stores(hash_value)
     # Second call must not raise and must return the same hash.
@@ -71,7 +75,7 @@ def test_store_if_not_exists() -> None:
 def test_store_or_raise() -> None:
     """store_or_raise is equivalent to store(conflicts="error")."""
     store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
-    item = b"alias error item"
+    item = RawItem(b"alias error item")
     hash_value = store.store_or_raise(item)
     assert store.stores(hash_value)
     # Second call must raise ItemAlreadyExists.
@@ -81,7 +85,7 @@ def test_store_or_raise() -> None:
 
 def test_hash_store_is_valid_missing_item_raises_item_not_found() -> None:
     store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
-    missing_hash = b"\x00" * 32
+    missing_hash = HashValue(b"\x00" * 32)
     with pytest.raises(ItemNotFound):
         store.is_valid_stored_item(missing_hash)
     with pytest.raises(ItemNotFound):
