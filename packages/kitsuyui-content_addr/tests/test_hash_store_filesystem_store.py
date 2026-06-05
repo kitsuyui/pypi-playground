@@ -59,9 +59,9 @@ def test_filesystem_store_factory(temp_dir) -> None:
 
 def test_filesystem_store_empty_hash_value_raises(temp_dir) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
-    empty_hash = b""
+    empty_hash = HashValue(b"")
     with pytest.raises(ValueError, match="hash_value must not be empty"):
-        store.store_item(empty_hash, b"data")
+        store.store_item(empty_hash, RawItem(b"data"))
     with pytest.raises(ValueError, match="hash_value must not be empty"):
         store.stores(empty_hash)
     with pytest.raises(ValueError, match="hash_value must not be empty"):
