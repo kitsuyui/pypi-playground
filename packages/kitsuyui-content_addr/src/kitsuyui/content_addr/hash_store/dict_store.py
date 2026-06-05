@@ -1,3 +1,4 @@
+from ..exceptions import ItemNotFound
 from ..types import HashValue, RawItem
 from .base_store import BaseStoreProtocol, register_store_factory
 
@@ -17,7 +18,12 @@ class DictStore(BaseStoreProtocol):
         return hash_value in self._store
 
     def retrieve(self, hash_value: HashValue) -> RawItem:
-        return self._store[hash_value]
+        try:
+            return self._store[hash_value]
+        except KeyError:
+            raise ItemNotFound(
+                f"Item with hash {hash_value.hex()} not found."
+            ) from None
 
     def delete(self, hash_value: HashValue) -> None:
         del self._store[hash_value]
