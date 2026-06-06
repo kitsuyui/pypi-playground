@@ -131,12 +131,12 @@ def test_filesystem_store_retrieve_missing_raises_item_not_found(
 
 def test_filesystem_store_use_after_destroy_raises(temp_dir) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
-    hash_value = b"hash1"
-    store.store_item(hash_value, b"data")
+    hash_value = HashValue(b"hash1")
+    store.store_item(hash_value, RawItem(b"data"))
     store.destroy()
 
     with pytest.raises(StoreDestroyedError):
-        store.store_item(hash_value, b"new")
+        store.store_item(hash_value, RawItem(b"new"))
     with pytest.raises(StoreDestroyedError):
         store.stores(hash_value)
     with pytest.raises(StoreDestroyedError):
