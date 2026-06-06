@@ -123,12 +123,12 @@ def test_store_item_cleans_up_on_write_failure(temp_dir) -> None:
     import unittest.mock as mock
 
     store = FileSystemStore(pathlib.Path(temp_dir))
-    hash_value = b"hashfail"
+    hash_value = HashValue(b"hashfail")
 
     err = OSError("rename failed")
     patch = mock.patch.object(pathlib.Path, "replace", side_effect=err)
     with patch, pytest.raises(OSError):
-        store.store_item(hash_value, b"data")
+        store.store_item(hash_value, RawItem(b"data"))
 
     assert not store.stores(hash_value)
 
