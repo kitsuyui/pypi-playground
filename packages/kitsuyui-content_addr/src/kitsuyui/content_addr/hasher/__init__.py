@@ -22,7 +22,13 @@ class SHA256Hasher(HasherProtocol):
 
 
 def generate_hasher(name: str) -> type[HasherProtocol]:
+    _digest_size = hashlib.new(name).digest_size
+
     class CustomHasher(HasherProtocol):
+        @property
+        def output_size_bytes(self) -> int:
+            return _digest_size
+
         def compute_hash(self, item: RawItem) -> HashValue:
             raw_hasher = hashlib.new(name)
             raw_hasher.update(item)
