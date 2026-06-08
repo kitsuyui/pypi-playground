@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import contextlib
 import json
+import os
 import pathlib
+import tempfile
 from typing import cast
 
 from ..exceptions import ItemNotFound, RetrievalError
@@ -13,7 +16,12 @@ _METADATA_FILENAME = "_metadata.json"
 
 
 class FileSystemStore(BaseStoreProtocol):
-    """File-based hash store implementation."""
+    """File-based hash store implementation.
+
+    Not thread-safe at the HashStore level: concurrent store/retrieve calls
+    on the same hash key may interleave. store_item uses an atomic
+    write-then-rename so partial writes do not corrupt stored content.
+    """
 
     def __init__(
         self,
@@ -91,13 +99,15 @@ class FileSystemStore(BaseStoreProtocol):
 
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         file_path = self.parent_dir / hash_value.hex()
-        tmp_path = file_path.with_suffix(".tmp")
+        fd, tmp_path_str = tempfile.mkstemp(dir=self.parent_dir)
+        tmp_path = pathlib.Path(tmp_path_str)
         try:
-            with tmp_path.open("wb") as f:
+            with os.fdopen(fd, "wb") as f:
                 f.write(item)
             tmp_path.replace(file_path)
-        except BaseException:
-            tmp_path.unlink(missing_ok=True)
+        except Exception:
+            with contextlib.suppress(OSError):
+                tmp_path.unlink()
             raise
 
     def stores(self, hash_value: HashValue) -> bool:
@@ -123,9 +133,14 @@ class FileSystemStore(BaseStoreProtocol):
         file_path.unlink()
 
     def clear(self) -> None:
-        for file_path in self.parent_dir.iterdir():
+        # Snapshot the listing before iterating so behaviour is deterministic:
+        # files that exist at this point are deleted; files written after the
+        # snapshot are not.  Not safe for concurrent use without external
+        # coordination.
+        files = list(self.parent_dir.iterdir())
+        for file_path in files:
             if file_path.is_file() and file_path.name != _METADATA_FILENAME:
-                file_path.unlink()
+                file_path.unlink(missing_ok=True)
 
     def destroy(self) -> None:
         self.clear()
