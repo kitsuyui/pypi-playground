@@ -22,6 +22,10 @@ class SHA256Hasher(HasherProtocol):
 
 
 def generate_hasher(name: str) -> type[HasherProtocol]:
+    # Validate the algorithm name eagerly so callers get an error at
+    # class-creation time rather than at first use.
+    hashlib.new(name)
+
     class CustomHasher(HasherProtocol):
         def compute_hash(self, item: RawItem) -> HashValue:
             raw_hasher = hashlib.new(name)
