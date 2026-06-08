@@ -133,9 +133,14 @@ class FileSystemStore(BaseStoreProtocol):
         file_path.unlink()
 
     def clear(self) -> None:
-        for file_path in self.parent_dir.iterdir():
+        # Snapshot the listing before iterating so behaviour is deterministic:
+        # files that exist at this point are deleted; files written after the
+        # snapshot are not.  Not safe for concurrent use without external
+        # coordination.
+        files = list(self.parent_dir.iterdir())
+        for file_path in files:
             if file_path.is_file() and file_path.name != _METADATA_FILENAME:
-                file_path.unlink()
+                file_path.unlink(missing_ok=True)
 
     def destroy(self) -> None:
         self.clear()
