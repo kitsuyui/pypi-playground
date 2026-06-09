@@ -9,6 +9,8 @@ from .types import HasherProtocol
 P = ParamSpec("P")
 THasher = TypeVar("THasher", bound=HasherProtocol)
 
+UNSAFE_HASH_ALGORITHMS = frozenset({"md5"})
+
 
 """
 Example implementation of a HasherProtocol using SHA-256:
@@ -22,6 +24,9 @@ class SHA256Hasher(HasherProtocol):
 
 
 def generate_hasher(name: str) -> type[HasherProtocol]:
+    if name.lower() in UNSAFE_HASH_ALGORITHMS:
+        raise ValueError(f"Unsafe hash algorithm is not supported: {name}")
+
     class CustomHasher(HasherProtocol):
         def compute_hash(self, item: RawItem) -> HashValue:
             raw_hasher = hashlib.new(name)
@@ -76,7 +81,6 @@ def factory(name: str, *args: object, **kwargs: object) -> HasherProtocol:
 
 
 SHA256Hasher = generate_hasher("sha256")
-MD5Hasher = generate_hasher("md5")
 
 
 @register_hasher_factory("sha256")
@@ -85,15 +89,8 @@ def sha256_factory(_config: object | None = None) -> HasherProtocol:
     return SHA256Hasher()
 
 
-@register_hasher_factory("md5")
-def md5_factory(_config: object | None = None) -> HasherProtocol:
-    """Factory function for creating a MD5Hasher class."""
-    return MD5Hasher()
-
-
 __all__ = [
     "HasherProtocol",
-    "MD5Hasher",
     "SHA256Hasher",
     "generate_hasher",
     "register_hasher_factory",
