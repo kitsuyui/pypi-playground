@@ -63,6 +63,9 @@ class FileSystemStore(BaseStoreProtocol):
 
     def destroy(self) -> None:
         self.clear()
+        metadata_path = self.parent_dir / self.METADATA_FILENAME
+        if metadata_path.exists():
+            metadata_path.unlink()
         self.parent_dir.rmdir()
 
 
