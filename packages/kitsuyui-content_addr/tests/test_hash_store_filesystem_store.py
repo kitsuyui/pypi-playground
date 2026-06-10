@@ -140,3 +140,24 @@ def test_filesystem_store_retrieve_missing_raises_item_not_found(
     missing_hash = HashValue(b"does_not_exist")
     with pytest.raises(ItemNotFound):
         store.retrieve(missing_hash)
+
+
+def test_filesystem_store_parent_dir_is_absolute(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    assert store.parent_dir.is_absolute()
+
+
+def test_filesystem_store_resolves_relative_traversal(temp_dir) -> None:
+    # A path containing ".." components is resolved to an absolute path,
+    # preventing traversal outside the intended root at mkdir time.
+    subdir = pathlib.Path(temp_dir) / "sub"
+    subdir.mkdir()
+    traversal = subdir / ".." / "sub"
+    store = FileSystemStore(traversal)
+    assert store.parent_dir == subdir.resolve()
+
+
+def test_filesystem_store_factory_path_is_absolute(temp_dir) -> None:
+    store = factory({"repo_dir": temp_dir})
+    assert isinstance(store, FileSystemStore)
+    assert store.parent_dir.is_absolute()
