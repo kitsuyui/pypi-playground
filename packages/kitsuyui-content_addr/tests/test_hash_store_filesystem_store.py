@@ -119,6 +119,20 @@ def test_filesystem_store_factory_with_hasher_algorithm(temp_dir) -> None:
     assert metadata["hasher_algorithm"] == "sha256"
 
 
+def test_store_item_cleans_up_on_write_failure(temp_dir) -> None:
+    import unittest.mock as mock
+
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    hash_value = HashValue(b"hashfail")
+
+    err = OSError("rename failed")
+    patch = mock.patch.object(pathlib.Path, "replace", side_effect=err)
+    with patch, pytest.raises(OSError):
+        store.store_item(hash_value, RawItem(b"data"))
+
+    assert not store.stores(hash_value)
+
+
 def test_filesystem_store_retrieve_missing_raises_item_not_found(
     temp_dir,
 ) -> None:
