@@ -1,4 +1,6 @@
-from kitsuyui.content_addr.hasher import MD5Hasher, SHA256Hasher
+import pytest
+
+from kitsuyui.content_addr.hasher import SHA256Hasher, generate_hasher
 from kitsuyui.content_addr.types import RawItem
 
 
@@ -12,9 +14,6 @@ def test_sha256_hasher() -> None:
     assert computed_hash.hex() == expected_hash_hex
 
 
-def test_md5_hasher() -> None:
-    hasher = MD5Hasher()
-    item = RawItem(b"Hello, World!")
-    expected_hash_hex = "65a8e27d8879283831b664bd8b7f0ad4"
-    computed_hash = hasher.compute_hash(item)
-    assert computed_hash.hex() == expected_hash_hex
+def test_generate_hasher_rejects_md5() -> None:
+    with pytest.raises(ValueError, match="Unsafe hash algorithm"):
+        generate_hasher("md5")

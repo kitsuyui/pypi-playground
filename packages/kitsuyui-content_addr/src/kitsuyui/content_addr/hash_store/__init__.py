@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from ..exceptions import ItemAlreadyExists
+from ..exceptions import CorruptedItemError, ItemAlreadyExists
 from ..hasher import factory as hasher_factory
 from ..hasher.types import HasherProtocol
 from ..types import HashValue, RawItem
@@ -15,7 +15,7 @@ VerifyAction = Literal["delete", "error", "ignore"]
 StoreConfig = dict[str, str | None]
 
 
-@dataclass
+@dataclass(frozen=True)
 class HashStore:
     hasher: HasherProtocol
     base_store: BaseStoreProtocol
@@ -60,10 +60,8 @@ class HashStore:
     def _delete_invalid_stored_item(self, hash_value: HashValue) -> None:
         self.delete(hash_value)
 
-    def _raise_invalid_stored_item(self, hash_value: HashValue) -> None:
-        raise ValueError(
-            f"Stored item with hash {hash_value.hex()} is invalid."
-        )
+    def _raise_invalid_stored_item(self, _hash_value: HashValue) -> None:
+        raise CorruptedItemError("Stored item is corrupted.")
 
     def _ignore_invalid_stored_item(self, _hash_value: HashValue) -> None:
         return None
@@ -107,9 +105,7 @@ class HashStore:
         self, hash_value: HashValue, item: RawItem
     ) -> None:
         if self.stores(hash_value):
-            raise ItemAlreadyExists(
-                f"Item with hash {hash_value.hex()} already exists."
-            )
+            raise ItemAlreadyExists("Item already exists.")
         self._store_raw(hash_value, item)
 
     def _store_ignoring_conflicts(
@@ -179,3 +175,8 @@ __all__ = [
     "ConflictAction",
     "HashStore",
 ]
+
+# Trigger @register_store_factory side-effects for built-in stores so that
+# HashStore.create(store_name="dict_store") works without explicit imports.
+from . import dict_store as _dict_store  # noqa: F401, E402
+from . import filesystem_store as _filesystem_store  # noqa: F401, E402
