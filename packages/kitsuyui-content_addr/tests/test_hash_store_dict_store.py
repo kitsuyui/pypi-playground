@@ -1,3 +1,6 @@
+import pytest
+
+from kitsuyui.content_addr.exceptions import ItemNotFound
 from kitsuyui.content_addr.hash_store.dict_store import DictStore, factory
 from kitsuyui.content_addr.types import HashValue, RawItem
 
@@ -38,3 +41,10 @@ def test_dict_store_store_and_retrieve() -> None:
 def test_dict_store_factory() -> None:
     store = factory(None)
     assert isinstance(store, DictStore)
+
+
+def test_dict_store_retrieve_missing_raises_item_not_found() -> None:
+    store = DictStore()
+    missing_hash = HashValue(b"does_not_exist")
+    with pytest.raises(ItemNotFound):
+        store.retrieve(missing_hash)

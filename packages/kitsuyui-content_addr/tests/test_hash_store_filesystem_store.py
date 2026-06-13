@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 
+from kitsuyui.content_addr.exceptions import ItemNotFound
 from kitsuyui.content_addr.hash_store.filesystem_store import (
     _METADATA_FILENAME,
     FORMAT_VERSION,
@@ -97,7 +98,7 @@ def test_filesystem_store_format_version_mismatch_raises(temp_dir) -> None:
 
 def test_filesystem_store_clear_preserves_metadata(temp_dir) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
-    store.store_item(b"hash1", b"item1")
+    store.store_item(HashValue(b"hash1"), RawItem(b"item1"))
     store.clear()
     metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
     assert metadata_path.exists()
@@ -116,3 +117,47 @@ def test_filesystem_store_factory_with_hasher_algorithm(temp_dir) -> None:
     with metadata_path.open() as f:
         metadata = json.load(f)
     assert metadata["hasher_algorithm"] == "sha256"
+
+
+def test_store_item_cleans_up_on_write_failure(temp_dir) -> None:
+    import unittest.mock as mock
+
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    hash_value = HashValue(b"hashfail")
+
+    err = OSError("rename failed")
+    patch = mock.patch.object(pathlib.Path, "replace", side_effect=err)
+    with patch, pytest.raises(OSError):
+        store.store_item(hash_value, RawItem(b"data"))
+
+    assert not store.stores(hash_value)
+
+
+def test_filesystem_store_retrieve_missing_raises_item_not_found(
+    temp_dir,
+) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    missing_hash = HashValue(b"does_not_exist")
+    with pytest.raises(ItemNotFound):
+        store.retrieve(missing_hash)
+
+
+def test_filesystem_store_parent_dir_is_absolute(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    assert store.parent_dir.is_absolute()
+
+
+def test_filesystem_store_resolves_relative_traversal(temp_dir) -> None:
+    # A path containing ".." components is resolved to an absolute path,
+    # preventing traversal outside the intended root at mkdir time.
+    subdir = pathlib.Path(temp_dir) / "sub"
+    subdir.mkdir()
+    traversal = subdir / ".." / "sub"
+    store = FileSystemStore(traversal)
+    assert store.parent_dir == subdir.resolve()
+
+
+def test_filesystem_store_factory_path_is_absolute(temp_dir) -> None:
+    store = factory({"repo_dir": temp_dir})
+    assert isinstance(store, FileSystemStore)
+    assert store.parent_dir.is_absolute()
