@@ -31,7 +31,7 @@ jobs:
           enable-cache: true
 
       - name: Export requirements
-        run: uv export --format requirements-txt --all-packages --no-dev --output-file /tmp/requirements.txt
+        run: uv export --format requirements-txt --all-packages --no-dev --no-emit-project --no-emit-workspace --output-file /tmp/requirements.txt
 
       - name: Run pip-audit
         run: uv tool run pip-audit -r /tmp/requirements.txt
