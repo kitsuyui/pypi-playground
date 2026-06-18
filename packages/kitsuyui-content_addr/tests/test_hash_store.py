@@ -61,6 +61,16 @@ def test_hash_store() -> None:
     assert not store.stores(hash_value)
 
 
+def test_verify_default_action_raises_on_corrupted_item() -> None:
+    store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
+    item = RawItem(b"test item")
+    hash_value = store.store(item)
+    store._store_raw(hash_value, RawItem(b"corrupted item"))
+    # Default action is "error", not "ignore" — must raise CorruptedItemError
+    with pytest.raises(CorruptedItemError):
+        store.verify(hash_value)
+
+
 def test_store_if_not_exists() -> None:
     """store_if_not_exists is equivalent to store(conflicts="ignore")."""
     store = HashStore(hasher=SHA256Hasher(), base_store=DictStore())
