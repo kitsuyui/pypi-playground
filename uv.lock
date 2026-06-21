@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.10"
 
 [options]
-exclude-newer = "2026-05-30T11:11:32.10868Z"
+exclude-newer = "2026-06-19T17:23:45.406672Z"
 exclude-newer-span = "P2D"
 
 [manifest]
@@ -144,7 +144,7 @@ toml = [
 
 [[package]]
 name = "dev-shared"
-source = { editable = "packages/dev-shared" }
+source = { editable = "dev-shared" }
 dependencies = [
     { name = "mypy" },
     { name = "poethepoet" },
@@ -201,7 +201,7 @@ dev = [
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
 
 [[package]]
 name = "kitsuyui-content-addr"
@@ -215,7 +215,7 @@ dev = [
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
 
 [[package]]
 name = "kitsuyui-hello"
@@ -229,7 +229,7 @@ dev = [
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
 
 [[package]]
 name = "librt"
