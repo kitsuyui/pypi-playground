@@ -44,24 +44,25 @@ jobs:
           uv sync
           uv run poe sync-all
 
-      - name: Build
-        run: |
-          uv run poe build
+      - parallel:
+          - name: Build
+            run: |
+              uv run poe build
 
-      - name: Lint
-        run: uv run poe check
+          - name: Lint
+            run: uv run poe check
 
-      - name: Check Python version
-        run: |
-          actual_version=$(uv run python --version)
-          expected_version="Python ${{ matrix.python }}"
-          if [[ "$actual_version" != *"$expected_version"* ]]; then
-            echo "Expected $expected_version, but got $actual_version"
-            exit 1
-          fi
+          - name: Check Python version
+            run: |
+              actual_version=$(uv run python --version)
+              expected_version="Python ${{ matrix.python }}"
+              if [[ "$actual_version" != *"$expected_version"* ]]; then
+                echo "Expected $expected_version, but got $actual_version"
+                exit 1
+              fi
 
-      - name: Test
-        run: uv run poe test
+          - name: Test
+            run: uv run poe test
 
       - name: Coverage
         run: uv run poe coverage
