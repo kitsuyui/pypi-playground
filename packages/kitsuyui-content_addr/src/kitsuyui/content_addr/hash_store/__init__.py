@@ -85,8 +85,8 @@ class HashStore:
         """Verify the stored item with the given hash value.
         action:
             - 'delete': delete the item if invalid
-            - 'error': raise ValueError if invalid
-            - 'ignore': do nothing if invalid (default)
+            - 'error': raise CorruptedItemError if invalid (default)
+            - 'ignore': do nothing if invalid
         Returns True if the item is valid, False otherwise.
         """
         is_valid = self.is_valid_stored_item(hash_value)
