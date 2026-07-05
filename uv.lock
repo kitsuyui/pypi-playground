@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer = "2026-06-19T17:23:45.406672Z"
 exclude-newer-span = "P2D"
 
 [manifest]
@@ -148,7 +148,7 @@ toml = [
 
 [[package]]
 name = "dev-shared"
-source = { editable = "packages/dev-shared" }
+source = { editable = "dev-shared" }
 dependencies = [
     { name = "mypy" },
     { name = "poethepoet" },
@@ -205,7 +205,7 @@ dev = [
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
 
 [[package]]
 name = "kitsuyui-content-addr"
@@ -219,7 +219,7 @@ dev = [
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
 
 [[package]]
 name = "kitsuyui-hello"
@@ -233,7 +233,7 @@ dev = [
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dev-shared", editable = "packages/dev-shared" }]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
 
 [[package]]
 name = "librt"

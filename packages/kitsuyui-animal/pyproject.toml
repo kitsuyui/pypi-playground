@@ -40,4 +40,4 @@ dev = [
 dev-shared = { workspace = true }
 
 [tool.poe]
-include = "../dev-shared/poe.tasks.toml"
+include = "../../dev-shared/poe.tasks.toml"

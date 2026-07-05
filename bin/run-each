@@ -7,8 +7,8 @@ shift
 # Use xargs instead find -exec to pass exit status.
 
 find packages \
--type d \
--not -path 'packages/dev-shared' \
--maxdepth 1 \
--mindepth 1 \
+-maxdepth 2 \
+-mindepth 2 \
+-name 'pyproject.toml' \
+| sed 's|/pyproject.toml||' \
 | xargs -P 1 -n 1 -I {} sh -c "cd '{}' && uv run poe $subcommand"
