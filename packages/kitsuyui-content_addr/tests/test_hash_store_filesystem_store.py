@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from kitsuyui.content_addr.exceptions import ItemNotFound
+from kitsuyui.content_addr.exceptions import ItemNotFound, StoreDestroyedError
 from kitsuyui.content_addr.hash_store.filesystem_store import (
     _METADATA_FILENAME,
     FORMAT_VERSION,
@@ -48,9 +48,10 @@ def test_filesystem_store_store_and_retrieve(temp_dir) -> None:
     assert not store.stores(hash_value)
     assert not store.stores(hash_value2)
 
-    # destroy store (should be no-op for DictStore)
+    # destroy store removes the backing directory
     store.destroy()
-    assert not store.stores(hash_value)
+    with pytest.raises(StoreDestroyedError):
+        store.stores(hash_value)
 
 
 def test_filesystem_store_factory(temp_dir) -> None:
@@ -161,3 +162,30 @@ def test_filesystem_store_factory_path_is_absolute(temp_dir) -> None:
     store = factory({"repo_dir": temp_dir})
     assert isinstance(store, FileSystemStore)
     assert store.parent_dir.is_absolute()
+
+
+def test_filesystem_store_use_after_destroy_raises(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    hash_value = HashValue(b"hash1")
+    store.store_item(hash_value, RawItem(b"data"))
+    store.destroy()
+
+    with pytest.raises(StoreDestroyedError):
+        store.store_item(hash_value, RawItem(b"new"))
+    with pytest.raises(StoreDestroyedError):
+        store.stores(hash_value)
+    with pytest.raises(StoreDestroyedError):
+        store.retrieve(hash_value)
+    with pytest.raises(StoreDestroyedError):
+        store.delete(hash_value)
+    with pytest.raises(StoreDestroyedError):
+        store.clear()
+    with pytest.raises(StoreDestroyedError):
+        store.destroy()
+
+
+def test_filesystem_store_destroy_is_idempotent_error(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    store.destroy()
+    with pytest.raises(StoreDestroyedError):
+        store.destroy()
