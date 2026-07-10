@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import shutil
 import tempfile
 from typing import cast
 
@@ -12,6 +13,13 @@ from .base_store import BaseStoreProtocol, register_store_factory
 
 FORMAT_VERSION = 1
 _METADATA_FILENAME = "_metadata.json"
+
+
+def _remove_file_or_directory(file_path: pathlib.Path) -> None:
+    if file_path.is_dir():
+        shutil.rmtree(file_path)
+    else:
+        file_path.unlink(missing_ok=True)
 
 
 class FileSystemStore(BaseStoreProtocol):
@@ -151,8 +159,9 @@ class FileSystemStore(BaseStoreProtocol):
         # coordination.
         files = list(self.parent_dir.iterdir())
         for file_path in files:
-            if file_path.is_file() and file_path.name != _METADATA_FILENAME:
-                file_path.unlink(missing_ok=True)
+            if file_path.name == _METADATA_FILENAME:
+                continue
+            _remove_file_or_directory(file_path)
 
     def destroy(self) -> None:
         self._check_not_destroyed()

@@ -104,6 +104,30 @@ def test_filesystem_store_clear_preserves_metadata(temp_dir) -> None:
     assert metadata_path.exists()
 
 
+def test_filesystem_store_clear_with_subdirectory(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    metadata_path = pathlib.Path(temp_dir) / _METADATA_FILENAME
+    (pathlib.Path(temp_dir) / "somefile").write_bytes(b"data")
+    subdir = pathlib.Path(temp_dir) / "subdir"
+    subdir.mkdir()
+    (subdir / "nested").write_bytes(b"nested")
+
+    store.clear()
+    assert not (pathlib.Path(temp_dir) / "somefile").exists()
+    assert not subdir.exists()
+    assert metadata_path.exists()
+
+
+def test_filesystem_store_destroy_with_subdirectory(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    subdir = pathlib.Path(temp_dir) / "subdir"
+    subdir.mkdir()
+    (subdir / "nested").write_bytes(b"nested")
+
+    store.destroy()
+    assert not pathlib.Path(temp_dir).exists()
+
+
 def test_filesystem_store_destroy_removes_metadata(temp_dir) -> None:
     store = FileSystemStore(pathlib.Path(temp_dir))
     store.destroy()
