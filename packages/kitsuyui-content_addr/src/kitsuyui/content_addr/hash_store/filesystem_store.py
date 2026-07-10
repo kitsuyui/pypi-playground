@@ -101,9 +101,14 @@ class FileSystemStore(BaseStoreProtocol):
     ) -> FileSystemStore:
         return cls(pathlib.Path(parent_dir), hasher_algorithm=hasher_algorithm)
 
+    def _file_path(self, hash_value: HashValue) -> pathlib.Path:
+        if not hash_value:
+            raise ValueError("hash_value must not be empty")
+        return self.parent_dir / hash_value.hex()
+
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         self._check_not_destroyed()
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         with tempfile.NamedTemporaryFile(
             dir=self.parent_dir, delete=False, suffix=".tmp"
         ) as tmp:
@@ -115,12 +120,12 @@ class FileSystemStore(BaseStoreProtocol):
 
     def stores(self, hash_value: HashValue) -> bool:
         self._check_not_destroyed()
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         return file_path.exists()
 
     def retrieve(self, hash_value: HashValue) -> RawItem:
         self._check_not_destroyed()
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         try:
             with file_path.open("rb") as f:
                 return RawItem(f.read())
@@ -135,7 +140,7 @@ class FileSystemStore(BaseStoreProtocol):
 
     def delete(self, hash_value: HashValue) -> None:
         self._check_not_destroyed()
-        file_path = self.parent_dir / hash_value.hex()
+        file_path = self._file_path(hash_value)
         file_path.unlink()
 
     def clear(self) -> None:
