@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import shutil
 import tempfile
 from typing import cast
 
@@ -146,7 +147,11 @@ class FileSystemStore(BaseStoreProtocol):
         # coordination.
         files = list(self.parent_dir.iterdir())
         for file_path in files:
-            if file_path.is_file() and file_path.name != _METADATA_FILENAME:
+            if file_path.name == _METADATA_FILENAME:
+                continue
+            if file_path.is_dir():
+                shutil.rmtree(file_path)
+            else:
                 file_path.unlink(missing_ok=True)
 
     def destroy(self) -> None:
