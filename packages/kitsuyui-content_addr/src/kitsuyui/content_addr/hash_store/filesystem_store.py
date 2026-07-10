@@ -15,6 +15,13 @@ FORMAT_VERSION = 1
 _METADATA_FILENAME = "_metadata.json"
 
 
+def _remove_file_or_directory(file_path: pathlib.Path) -> None:
+    if file_path.is_dir():
+        shutil.rmtree(file_path)
+    else:
+        file_path.unlink(missing_ok=True)
+
+
 class FileSystemStore(BaseStoreProtocol):
     """File-based hash store implementation.
 
@@ -149,10 +156,7 @@ class FileSystemStore(BaseStoreProtocol):
         for file_path in files:
             if file_path.name == _METADATA_FILENAME:
                 continue
-            if file_path.is_dir():
-                shutil.rmtree(file_path)
-            else:
-                file_path.unlink(missing_ok=True)
+            _remove_file_or_directory(file_path)
 
     def destroy(self) -> None:
         self._check_not_destroyed()
