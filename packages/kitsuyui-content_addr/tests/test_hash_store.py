@@ -125,9 +125,9 @@ def test_hash_store_factory() -> None:
         assert store2.stores(hash_value2)
 
 
-def test_hash_store_factory_rejects_md5() -> None:
-    with pytest.raises(ValueError, match="Hasher 'md5' is not registered"):
+def test_hash_store_factory_rejects_unknown_hasher() -> None:
+    with pytest.raises(ValueError, match="Hasher 'sha1' is not registered"):
         factory(
-            hasher_name="md5",
+            hasher_name="sha1",
             store_name="dict_store",
         )
