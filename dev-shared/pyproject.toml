@@ -14,6 +14,6 @@ dependencies = [
     "poethepoet>=0.48.0,<1",
     "setuptools-scm>=10.2.0,<11",
     "ruff>=0.15.22,<1",
-    "mypy>=2.1.0,<3",
+    "mypy>=2.3.0,<3",
     "ty>=0.0.59,<0.1",
 ]
