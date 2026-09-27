@@ -51,15 +51,16 @@ jobs:
 
           - name: Lint
             run: |
-              uv run poe check 2>&1 | tee /tmp/lint-output.log
-              status=${PIPESTATUS[0]}
+              set +e
+              uv run poe check > /tmp/lint-output.log 2>&1
+              status=$?
+              cat /tmp/lint-output.log
               if [ "$status" -ne 0 ]; then
                 while IFS= read -r line; do
-                  echo "::error::$line"
+                  printf '::error::%s\n' "$line"
                 done < /tmp/lint-output.log
                 exit "$status"
               fi
-            shell: bash
 
           - name: Check Python version
             run: |
