@@ -50,7 +50,16 @@ jobs:
               uv run poe build
 
           - name: Lint
-            run: uv run poe check
+            run: |
+              uv run poe check 2>&1 | tee /tmp/lint-output.log
+              status=${PIPESTATUS[0]}
+              if [ "$status" -ne 0 ]; then
+                while IFS= read -r line; do
+                  echo "::error::$line"
+                done < /tmp/lint-output.log
+                exit "$status"
+              fi
+            shell: bash
 
           - name: Check Python version
             run: |
