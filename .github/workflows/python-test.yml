@@ -50,20 +50,7 @@ jobs:
               uv run poe build
 
           - name: Lint
-            run: |
-              set +e
-              uv run poe check > /tmp/lint-output.log 2>&1
-              status=$?
-              cat /tmp/lint-output.log
-              if [ "$status" -ne 0 ]; then
-                sed -E 's/\x1b\[[0-9;]*m//g' /tmp/lint-output.log \
-                  | grep -iE 'error|fail|traceback|F[0-9]{3}|E[0-9]{3}' \
-                  | tail -n 8 \
-                  | while IFS= read -r line; do
-                      printf '::error::%s\n' "$line"
-                    done
-                exit "$status"
-              fi
+            run: uv run poe check
 
           - name: Check Python version
             run: |
