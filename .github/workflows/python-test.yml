@@ -56,9 +56,12 @@ jobs:
               status=$?
               cat /tmp/lint-output.log
               if [ "$status" -ne 0 ]; then
-                while IFS= read -r line; do
-                  printf '::error::%s\n' "$line"
-                done < /tmp/lint-output.log
+                sed -E 's/\x1b\[[0-9;]*m//g' /tmp/lint-output.log \
+                  | grep -iE 'error|fail|traceback|F[0-9]{3}|E[0-9]{3}' \
+                  | tail -n 8 \
+                  | while IFS= read -r line; do
+                      printf '::error::%s\n' "$line"
+                    done
                 exit "$status"
               fi
 
