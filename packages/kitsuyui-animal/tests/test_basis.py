@@ -11,4 +11,4 @@ def test_dog() -> None:
 
 def test_animal_is_abstract() -> None:
     with pytest.raises(TypeError):
-        Animal("test")  # type: ignore[abstract]
+        Animal("test")  # type: ignore[abstract]  # ty: ignore[call-non-callable]
