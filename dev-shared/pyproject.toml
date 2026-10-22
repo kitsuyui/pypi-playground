@@ -13,7 +13,7 @@ dependencies = [
     "pytest-cov>=7,<8",
     "poethepoet>=0.49.0,<1",
     "setuptools-scm>=10.3.4,<11",
-    "ruff>=0.17.0,<1",
+    "ruff>=0.17.1,<1",
     "mypy>=2.4.0,<3",
     "ty>=0.0.86,<0.1",
 ]
