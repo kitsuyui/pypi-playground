@@ -99,14 +99,31 @@ lefthook install
 
 Once installed, the hooks run automatically:
 
-- **pre-commit**: `uv run poe check`
-- **pre-push**: `uv run poe check` and `uv run poe test`
+- **pre-commit**: `uv run poe check` and `./scripts/check-spelling.sh`
+- **pre-push**: the same checks, `uv run poe test`, `uv run poe build`,
+  and `./scripts/check-dependencies.sh`
+
+The spelling and dependency checks use the same scripts in CI and in the hooks.
+The first run downloads the pinned `typos` tool and `pip-audit` via `uv`.
+The dependency audit checks locked direct and transitive dependencies for the
+current Python version and platform without resolving them again. CI runs the
+same command in its own environment; a local audit does not cover every
+platform. The audit queries an online vulnerability database, so it needs
+network access. A failed check prevents the commit or push.
+
+The hooks check the working tree, not a snapshot of staged or pushed content.
+Before committing partially staged files, make sure their working-tree contents
+match what you intend to commit. Run the pre-push checks with a clean working
+tree to check the content being pushed.
 
 You can also run the checks manually:
 
 ```sh
 uv run poe check
 uv run poe test
+uv run poe build
+./scripts/check-spelling.sh
+./scripts/check-dependencies.sh
 ```
 
 CI still runs the full matrix (see `.github/workflows/`); the hooks only bring that
