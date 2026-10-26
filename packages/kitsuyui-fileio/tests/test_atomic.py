@@ -19,8 +19,8 @@ from kitsuyui.fileio import (
 def test_text_and_bytes_replace_existing_file(tmp_path: Path) -> None:
     path = tmp_path / "data"
     path.write_bytes(b"old")
-    atomic_write_text(path, "caf\u00e9", encoding="utf-8")
-    assert path.read_bytes() == "caf\u00e9".encode()
+    atomic_write_text(path, "na\u00efve", encoding="utf-8")
+    assert path.read_bytes() == "na\u00efve".encode()
     atomic_write_bytes(path, b"new")
     assert path.read_bytes() == b"new"
     assert list(tmp_path.iterdir()) == [path]
@@ -176,8 +176,8 @@ def test_parent_symlink_dotdot_resolves_like_os(tmp_path: Path) -> None:
 
 def test_long_destination_and_encoding_errors(tmp_path: Path) -> None:
     path = tmp_path / ("x" * 240)
-    atomic_write_text(path, "caf\u00e9", encoding="ascii", errors="replace")
-    assert path.read_bytes() == b"caf?"
+    atomic_write_text(path, "na\u00efve", encoding="ascii", errors="replace")
+    assert path.read_bytes() == b"na?ve"
 
 
 def test_invalid_permissions_does_not_create_file(tmp_path: Path) -> None:
