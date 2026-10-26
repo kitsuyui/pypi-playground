@@ -18,7 +18,32 @@ permissions:
   contents: read
 
 jobs:
+  validate-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ env.python_version }}
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
+      - run: |
+          uv sync --locked
+          uv run poe sync-all
+          for package in kitsuyui-animal kitsuyui-content_addr kitsuyui-hello; do
+            uv build --package "$package" --out-dir "packages/$package/dist"
+          done
+      - name: Verify release versions
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --with packaging python scripts/verify_release_artifacts.py "$RELEASE_TAG"
+
   deploy:
+    needs: validate-packages
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,6 +55,8 @@ jobs:
         targets: ['kitsuyui-animal', 'kitsuyui-content_addr', 'kitsuyui-hello']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         id: setup-python
@@ -48,7 +75,7 @@ jobs:
           uv run poe sync-all
 
       - name: Build
-        run: uv run poe build
+        run: uv build --package "${{ matrix.targets }}" --out-dir "packages/${{ matrix.targets }}/dist"
 
       - name: Publish distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
