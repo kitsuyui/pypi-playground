@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import threading
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import patch
@@ -38,14 +39,16 @@ def test_context_error_preserves_original_and_removes_temporary(
     assert list(tmp_path.iterdir()) == [path]
 
 
-@pytest.mark.parametrize("operation", ["replace", "fsync"])
+@pytest.mark.parametrize(
+    ("target", "operation"), [(Path, "replace"), (os, "fsync")]
+)
 def test_precommit_failure_keeps_original(
-    tmp_path: Path, operation: str
+    tmp_path: Path, target: Any, operation: str
 ) -> None:
     path = tmp_path / "data"
     path.write_bytes(b"old")
     with (
-        patch.object(os, operation, side_effect=OSError("injected")),
+        patch.object(target, operation, side_effect=OSError("injected")),
         pytest.raises(OSError, match="injected"),
     ):
         atomic_write_bytes(path, b"new")
@@ -78,10 +81,15 @@ def test_directory_sync_failure_reports_visible_replacement(
     assert list(tmp_path.iterdir()) == [path]
 
 
+def _write_versions(path: Path, versions: tuple[bytes, bytes]) -> None:
+    for index in range(30):
+        atomic_write_bytes(path, versions[index % 2], durability="none")
+
+
 @pytest.mark.skipif(
     os.name == "nt", reason="Windows may deny replacement of an open file"
 )
-def test_reader_sees_only_complete_versions(tmp_path: Path) -> None:  # noqa: C901
+def test_reader_sees_only_complete_versions(tmp_path: Path) -> None:
     path = tmp_path / "data"
     versions = (b"a" * 32768, b"b" * 32768)
     path.write_bytes(versions[0])
@@ -95,8 +103,7 @@ def test_reader_sees_only_complete_versions(tmp_path: Path) -> None:  # noqa: C9
     thread = threading.Thread(target=reader)
     thread.start()
     try:
-        for index in range(30):
-            atomic_write_bytes(path, versions[index % 2], durability="none")
+        _write_versions(path, versions)
     finally:
         done.set()
         thread.join()
@@ -124,7 +131,9 @@ def test_invalid_durability_does_not_create_files(tmp_path: Path) -> None:
     assert list(tmp_path.iterdir()) == []
 
 
-def test_body_exception_survives_close_failure(tmp_path: Path) -> None:
+def test_body_exception_survives_close_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     path = tmp_path / "data"
     path.write_bytes(b"old")
     with (
@@ -137,7 +146,7 @@ def test_body_exception_survives_close_failure(tmp_path: Path) -> None:
             real_close()
             raise OSError("close")
 
-        setattr(stream, "close", fail_close)  # noqa: B010
+        monkeypatch.setattr(stream, "close", fail_close)
         raise RuntimeError("body")
     assert path.read_bytes() == b"old"
 
@@ -184,3 +193,43 @@ def test_invalid_permissions_does_not_create_file(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="permissions"):
         atomic_write_bytes(tmp_path / "data", b"new", permissions=0o1000)
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.fixture
+def reused_temporary_name() -> Generator[list[Path], None, None]:
+    recreated: list[Path] = []
+    real_replace = Path.replace
+
+    def replace_and_recreate(source: Path, destination: Path) -> Path:
+        result = real_replace(source, destination)
+        source.write_bytes(b"another writer")
+        recreated.append(source)
+        return result
+
+    with patch.object(Path, "replace", replace_and_recreate):
+        yield recreated
+
+
+def test_reused_temporary_name_survives_success(
+    tmp_path: Path, reused_temporary_name: list[Path]
+) -> None:
+    path = tmp_path / "data"
+    atomic_write_bytes(path, b"new")
+    assert path.read_bytes() == b"new"
+    assert len(reused_temporary_name) == 1
+    assert reused_temporary_name[0].read_bytes() == b"another writer"
+
+
+@pytest.mark.skipif(os.name != "posix", reason="directory fsync is POSIX-only")
+def test_reused_temporary_name_survives_directory_sync_failure(
+    tmp_path: Path, reused_temporary_name: list[Path]
+) -> None:
+    path = tmp_path / "data"
+    with (
+        patch.object(os, "fsync", side_effect=[None, OSError("sync failed")]),
+        pytest.raises(DurabilityError),
+    ):
+        atomic_write_bytes(path, b"new", durability="file_and_directory")
+    assert path.read_bytes() == b"new"
+    assert len(reused_temporary_name) == 1
+    assert reused_temporary_name[0].read_bytes() == b"another writer"
