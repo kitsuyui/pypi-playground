@@ -2,11 +2,19 @@
 # repositories are not affected: https://git-scm.com/docs/githooks
 pre-commit:
   jobs:
+    - name: spelling
+      run: for name in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done; ./scripts/check-spelling.sh
     - name: check
       run: for name in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done; uv run poe check
 
 pre-push:
   jobs:
+    - name: spelling
+      run: for name in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done; ./scripts/check-spelling.sh
+    - name: dependencies
+      run: for name in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done; ./scripts/check-dependencies.sh
+    - name: build
+      run: for name in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done; uv run poe build
     - name: check
       run: for name in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$name"; done; uv run poe check
     - name: test
