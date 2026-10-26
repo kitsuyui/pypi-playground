@@ -31,7 +31,7 @@ jobs:
       - run: |
           uv sync --locked
           uv run poe sync-all
-          for package in kitsuyui-animal kitsuyui-content_addr kitsuyui-hello; do
+          for package in kitsuyui-animal kitsuyui-content_addr kitsuyui-fileio kitsuyui-hello; do
             uv build --package "$package" --out-dir "packages/$package/dist"
           done
       - name: Verify release versions
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        targets: ['kitsuyui-animal', 'kitsuyui-content_addr', 'kitsuyui-hello']
+        targets: ['kitsuyui-animal', 'kitsuyui-content_addr', 'kitsuyui-fileio', 'kitsuyui-hello']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

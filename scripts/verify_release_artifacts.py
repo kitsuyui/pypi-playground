@@ -11,7 +11,7 @@ tag = sys.argv[1]
 if not tag.startswith("v"):
     raise SystemExit("Expected a v-prefixed release tag")
 expected = Version(tag[1:])
-for package in ("kitsuyui-animal", "kitsuyui-content_addr", "kitsuyui-hello"):
+for package in ("kitsuyui-animal", "kitsuyui-content_addr", "kitsuyui-fileio", "kitsuyui-hello"):
     dist = Path("packages") / package / "dist"
     wheels, sdists = list(dist.glob("*.whl")), list(dist.glob("*.tar.gz"))
     if len(wheels) != 1 or len(sdists) != 1:
