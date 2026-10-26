@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        targets: ['kitsuyui-animal', 'kitsuyui-content_addr', 'kitsuyui-hello']
+        targets: ['kitsuyui-animal', 'kitsuyui-content_addr', 'kitsuyui-fileio', 'kitsuyui-hello']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -48,7 +48,7 @@ jobs:
           uv run poe sync-all
 
       - name: Build
-        run: uv run poe build
+        run: uv build --package "${{ matrix.targets }}" --out-dir "packages/${{ matrix.targets }}/dist"
 
       - name: Publish distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33

@@ -1,0 +1,37 @@
+[project]
+name = "kitsuyui.fileio"
+dynamic = ["version"]
+description = "Explicit and safe file writing utilities"
+license = "BSD-3-Clause"
+requires-python = ">=3.10"
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [{name = "Yui KITSU", email = "kitsuyui+github@kitsuyui.com"}]
+classifiers = ["Development Status :: 3 - Alpha"]
+
+[project.urls]
+Homepage = "https://github.com/kitsuyui/pypi-playground"
+
+[build-system]
+requires = ["setuptools>=77", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+package-data = { "*" = ["py.typed"] }
+
+[tool.setuptools.packages.find]
+where = ["src/"]
+include = ["kitsuyui.fileio"]
+
+[tool.setuptools_scm]
+version_file = "./src/kitsuyui/fileio/_version.py"
+root = "../.."
+
+[dependency-groups]
+dev = ["dev-shared"]
+
+[tool.uv.sources]
+dev-shared = { workspace = true }
+
+[tool.poe]
+include = "../../dev-shared/poe.tasks.toml"

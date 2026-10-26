@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -15,6 +15,7 @@ members = [
     "dev-shared",
     "kitsuyui-animal",
     "kitsuyui-content-addr",
+    "kitsuyui-fileio",
     "kitsuyui-hello",
     "pypi-playground-root",
 ]
@@ -274,6 +275,20 @@ dev = [{ name = "dev-shared", editable = "dev-shared" }]
 [[package]]
 name = "kitsuyui-content-addr"
 source = { editable = "packages/kitsuyui-content_addr" }
+
+[package.dev-dependencies]
+dev = [
+    { name = "dev-shared" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [{ name = "dev-shared", editable = "dev-shared" }]
+
+[[package]]
+name = "kitsuyui-fileio"
+source = { editable = "packages/kitsuyui-fileio" }
 
 [package.dev-dependencies]
 dev = [
