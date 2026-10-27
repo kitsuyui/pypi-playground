@@ -19,6 +19,7 @@ concurrency:
 
 env:
   python_version: 3.13
+  release_version: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag || '' }}
 
 permissions:
   contents: read
@@ -38,6 +39,9 @@ jobs:
       - run: |
           uv sync --locked
           uv run poe sync-all
+          if [ -n "$release_version" ]; then
+            export SETUPTOOLS_SCM_PRETEND_VERSION="${release_version#v}"
+          fi
           for package in kitsuyui-animal kitsuyui-content_addr kitsuyui-fileio kitsuyui-hello; do
             uv build --package "$package" --out-dir "packages/$package/dist"
           done
@@ -82,7 +86,11 @@ jobs:
           uv run poe sync-all
 
       - name: Build
-        run: uv build --package "${{ matrix.targets }}" --out-dir "packages/${{ matrix.targets }}/dist"
+        run: |
+          if [ -n "$release_version" ]; then
+            export SETUPTOOLS_SCM_PRETEND_VERSION="${release_version#v}"
+          fi
+          uv build --package "${{ matrix.targets }}" --out-dir "packages/${{ matrix.targets }}/dist"
 
       - name: Publish distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
