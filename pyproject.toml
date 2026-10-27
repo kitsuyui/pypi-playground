@@ -21,6 +21,7 @@ exclude-newer = "2 days"
 [dependency-groups]
 dev = [
     "poethepoet",
+    "setuptools",
 ]
 
 [build-system]

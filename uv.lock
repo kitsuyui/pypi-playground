@@ -580,12 +580,16 @@ source = { editable = "." }
 [package.dev-dependencies]
 dev = [
     { name = "poethepoet" },
+    { name = "setuptools" },
 ]
 
 [package.metadata]
 
 [package.metadata.requires-dev]
-dev = [{ name = "poethepoet" }]
+dev = [
+    { name = "poethepoet" },
+    { name = "setuptools" },
+]
 
 [[package]]
 name = "pytest"
