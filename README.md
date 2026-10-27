@@ -132,3 +132,17 @@ feedback earlier on your machine.
 # LICENSE
 
 BSD 3-Clause License
+
+## Releasing
+
+A GitHub Release builds all four packages from its tag. The workflow checks
+that every wheel and source distribution has the tag's version before uploads
+begin. Configure a PyPI Trusted Publisher for each package with owner `kitsuyui`,
+repository `pypi-playground`, workflow `pypi-publish.yml`, and no environment.
+For a package that does not yet exist, register a pending publisher in PyPI.
+Prereleases require equivalent publishers on TestPyPI.
+
+Uploads are independent and cannot be atomic across packages. If one upload
+fails, inspect the registry and workflow before retrying; already published
+versions cannot be overwritten. Publish only the missing package manually from
+the validated tag or use a new version for all packages.
