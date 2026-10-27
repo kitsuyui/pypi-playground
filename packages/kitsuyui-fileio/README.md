@@ -1,7 +1,8 @@
 # kitsuyui.fileio
 
-Small, explicit file I/O primitives. The first release provides atomic
-replacement of a single file without runtime dependencies (Python 3.10+).
+Small, explicit file I/O primitives. It provides atomic replacement of a
+single file and POSIX advisory locking without runtime dependencies (Python
+3.10+).
 
 ```python
 from kitsuyui.fileio import atomic_write, atomic_write_bytes, atomic_write_text
@@ -23,6 +24,50 @@ in a `TextIOWrapper` must flush and detach the wrapper before leaving the block;
 closing the supplied stream causes a `ValueError` and cancels replacement.
 Text convenience writes use `str.encode` and do not translate newlines; callers
 may choose the encoding and encoding error handler.
+
+## Advisory locks
+
+`advisory_lock` is a separate primitive: it deliberately does not wrap an
+atomic write or infer a lock-file name from a data-file name. Choose a lock-file
+path that every cooperating process uses, then compose the operations
+explicitly.
+
+```python
+from kitsuyui.fileio import advisory_lock, atomic_write_text
+
+with advisory_lock("settings.lock", timeout=5):
+    atomic_write_text("settings.txt", "ready\n")
+```
+
+The lock is advisory and only coordinates processes that acquire the same lock
+file. It supports `mode="exclusive"` (the default) and `mode="shared"`.
+Calls in this process follow the same modes by lock-file path, including calls
+from different threads. `timeout=None` waits indefinitely, `timeout=0` makes
+one non-blocking attempt, and a positive timeout retries against a monotonic
+deadline. Contention raises `AdvisoryLockTimeoutError`; permission and I/O
+failures remain their original `OSError` values. The context manager always
+attempts to release its descriptor. If the body raises, that exception is
+preserved even if cleanup also fails.
+
+The API is not generally reentrant. In particular, attempting to acquire an
+exclusive lock again from the same thread waits like any other exclusive
+request, so `timeout=None` would wait forever. A shared lock can be acquired
+again, but each acquisition must be released separately.
+
+The lock file's parent must already exist. A newly created lock file requests
+permissions `0o600` (subject to the process umask); an existing lock file keeps
+its metadata. The module never unlinks the lock file after release. Removing
+and recreating a lock file can cause separate inodes to be locked independently,
+breaking mutual exclusion.
+
+This feature requires POSIX `fcntl.flock`; on unsupported platforms acquisition
+raises `AdvisoryLockUnsupportedError` and never degrades to a no-op. It is for
+cooperating local processes on filesystems with compatible `flock` semantics.
+It does not provide mandatory locking, transactionality, crash recovery, or a
+portable NFS/distributed-filesystem coordination protocol. Lock-file paths must
+be in directories whose access policy is appropriate for the cooperating
+processes. Do not use a lock file in a directory controlled by an untrusted
+party, and do not rely on this primitive to make a symlinked lock file safe.
 
 ## Guarantees and boundaries
 
