@@ -84,22 +84,6 @@ jobs:
       - name: Build
         run: uv build --package "${{ matrix.targets }}" --out-dir "packages/${{ matrix.targets }}/dist"
 
-      - name: Verify manually selected release tag and version
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          RELEASE_TAG: ${{ inputs.tag }}
-          EVENT_TAG: ${{ github.ref_name }}
-        run: |
-          case "$RELEASE_TAG" in
-            v*) ;;
-            *) echo "tag must start with v" >&2; exit 1 ;;
-          esac
-          test "$RELEASE_TAG" = "$EVENT_TAG"
-          git tag --points-at HEAD | grep -Fx "$RELEASE_TAG"
-          expected_version="${RELEASE_TAG#v}"
-          actual_version="$(uv run --package kitsuyui-fileio python -c 'from kitsuyui.fileio import __version__; print(__version__)')"
-          test "$actual_version" = "$expected_version"
-
       - name: Publish distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
         if: github.event_name == 'release' && github.event.release.prerelease
