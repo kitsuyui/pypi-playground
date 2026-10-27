@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import json
-import os
 import pathlib
 import shutil
-import tempfile
 from typing import cast
+
+from kitsuyui.fileio import atomic_write_bytes
 
 from ..exceptions import ItemNotFound, RetrievalError, StoreDestroyedError
 from ..types import HashValue, RawItem
@@ -117,14 +117,7 @@ class FileSystemStore(BaseStoreProtocol):
     def store_item(self, hash_value: HashValue, item: RawItem) -> None:
         self._check_not_destroyed()
         file_path = self._file_path(hash_value)
-        with tempfile.NamedTemporaryFile(
-            dir=self.parent_dir, delete=False, suffix=".tmp"
-        ) as tmp:
-            tmp.write(item)
-            tmp.flush()
-            os.fsync(tmp.fileno())
-            tmp_path = pathlib.Path(tmp.name)
-        tmp_path.replace(file_path)
+        atomic_write_bytes(file_path, item, durability="file")
 
     def stores(self, hash_value: HashValue) -> bool:
         self._check_not_destroyed()

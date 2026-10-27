@@ -1,5 +1,7 @@
 import json
+import os
 import pathlib
+import stat
 import tempfile
 
 import pytest
@@ -155,6 +157,31 @@ def test_store_item_cleans_up_on_write_failure(temp_dir) -> None:
         store.store_item(hash_value, RawItem(b"data"))
 
     assert not store.stores(hash_value)
+
+
+def test_store_item_preserves_existing_content_when_sync_fails(
+    temp_dir, monkeypatch
+) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    hash_value = HashValue(b"syncfail")
+    store.store_item(hash_value, RawItem(b"old"))
+
+    def fail_sync(_fd: int) -> None:
+        raise OSError("sync failed")
+
+    monkeypatch.setattr(os, "fsync", fail_sync)
+    with pytest.raises(OSError, match="sync failed"):
+        store.store_item(hash_value, RawItem(b"new"))
+
+    assert store.retrieve(hash_value) == RawItem(b"old")
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX permissions")
+def test_store_item_uses_private_default_permissions(temp_dir) -> None:
+    store = FileSystemStore(pathlib.Path(temp_dir))
+    hash_value = HashValue(b"permissions")
+    store.store_item(hash_value, RawItem(b"content"))
+    assert stat.S_IMODE(store._file_path(hash_value).stat().st_mode) == 0o600
 
 
 def test_filesystem_store_retrieve_missing_raises_item_not_found(

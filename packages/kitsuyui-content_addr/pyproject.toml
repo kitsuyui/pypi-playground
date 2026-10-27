@@ -11,6 +11,9 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
 ]
+dependencies = [
+    "kitsuyui-fileio>=0.8.1",
+]
 
 [project.urls]
 Homepage = "https://github.com/kitsuyui/pypi-playground"
@@ -38,6 +41,16 @@ dev = [
 
 [tool.uv.sources]
 dev-shared = { workspace = true }
+kitsuyui-fileio = { workspace = true }
+
+[tool.mypy]
+mypy_path = ["src", "../kitsuyui-fileio/src"]
 
 [tool.poe]
 include = "../../dev-shared/poe.tasks.toml"
+
+[tool.poe.tasks.type_check]
+sequence = [
+    { cmd = "env MYPYPATH=src mypy --namespace-packages --explicit-package-bases src tests" },
+    { cmd = "ty check src tests --extra-search-path ../kitsuyui-fileio/src" },
+]
