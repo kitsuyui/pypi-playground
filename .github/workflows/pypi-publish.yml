@@ -93,7 +93,7 @@ jobs:
           uv build --package "${{ matrix.targets }}" --out-dir "packages/${{ matrix.targets }}/dist"
 
       - name: Publish distribution to Test PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086
         if: github.event_name == 'release' && github.event.release.prerelease
         with:
           repository-url: https://test.pypi.org/legacy/
@@ -101,7 +101,7 @@ jobs:
 
       - name: Publish distribution to PyPI
         if: (github.event_name == 'release' && !github.event.release.prerelease) || github.event_name == 'workflow_dispatch'
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086
         with:
           packages-dir: packages/${{ matrix.targets }}/dist
           attestations: true
