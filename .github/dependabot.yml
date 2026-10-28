@@ -7,8 +7,12 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     allow:
-      - dependency-type: "direct"
-      - dependency-name: "setuptools"
-        dependency-type: "indirect"
+      - dependency-type: "all"
+    groups:
+      uv-dependencies:
+        patterns:
+          - "*"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 2
